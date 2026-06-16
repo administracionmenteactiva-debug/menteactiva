@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-color: #ffffff;
+    --text-color: #2D3436; /* Neutro de Marca (Mente) */
+  }
+
+  [data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #F0F7FF; /* Modo Oscuro (Mente) */
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    font-family: 'Quicksand', sans-serif;
+  }
+}
