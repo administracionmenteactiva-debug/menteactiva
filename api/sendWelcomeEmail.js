@@ -18,6 +18,9 @@ export default async function handler(req, res) {
     let finalBody = config.body
         .replace(/{nombre}/g, fullName || 'Docente')
         .replace(/{email}/g, userEmail);
+        
+    let finalGreeting = (config.greeting || '¡Hola, {nombre}!')
+        .replace(/{nombre}/g, fullName || 'Docente');
 
     if (scheduledTime) {
         const formattedDate = new Date(scheduledTime).toLocaleString('es-PE', { 
@@ -46,7 +49,7 @@ export default async function handler(req, res) {
                 <div style="text-align: center; margin-bottom: 20px;">
                     <img src="https://drive.google.com/uc?export=view&id=1NzwdRG4hA6yRd9xqFZfY_-p7Q1Gsy1fV" alt="Mente Activa Logo" width="360" style="display: block; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
                 </div>
-                <h1 style="color: #3b82f6; text-align: center;">¡Hola, ${fullName || 'Docente'}!</h1>
+                <h1 style="color: #3b82f6; text-align: center;">${finalGreeting}</h1>
                 <p style="font-size: 16px; color: #475569; line-height: 1.6; text-align: center; white-space: pre-line;">
                     ${finalBody}
                 </p>
