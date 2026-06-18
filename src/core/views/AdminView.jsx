@@ -31,6 +31,13 @@ const AdminView = () => {
     const [visiblePasswords, setVisiblePasswords] = React.useState({});
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
+    // Redirigir al login si se cierra la sesión
+    React.useEffect(() => {
+        if (!user || !user.role?.includes('admin')) {
+            navigate('/login');
+        }
+    }, [user, navigate]);
+
     // Función para copiar credenciales formateadas para WhatsApp
     const handleCopyCredentials = (email, password) => {
         const domain = window.location.origin;
