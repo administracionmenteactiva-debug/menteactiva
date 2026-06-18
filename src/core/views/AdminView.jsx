@@ -70,15 +70,13 @@ const AdminView = () => {
     };
     const [planModalUser, setPlanModalUser] = React.useState(null);
     const [newPlan, setNewPlan] = React.useState('mensual');
-    const [modalLevels, setModalLevels] = React.useState([]);
-    const [modalAreas, setModalAreas] = React.useState([]);
+    const [modalTools, setModalTools] = React.useState([]);
     const [modalScheduledTime, setModalScheduledTime] = React.useState('');
 
     const openPlanModal = (u) => {
         setPlanModalUser(u);
         setNewPlan(u.plan || 'mensual');
-        setModalLevels(u.allowedLevels || ['Primaria', 'Secundaria']);
-        setModalAreas(u.allowedAreas || []);
+        setModalTools(u.allowedTools || []);
         setModalScheduledTime(u.scheduledTime || formatPeruLocal(getPeruDate()));
     };
     
@@ -151,7 +149,8 @@ const AdminView = () => {
         scheduledTime: '',
         whatsappVentas: '',
         walink: '',
-        allowedLevels: ['Primaria', 'Secundaria'],
+        allowedTools: [],
+        allowedLevels: [],
         allowedAreas: []
     });
 
@@ -195,8 +194,7 @@ const AdminView = () => {
             whatsappVentas: newUser.whatsappVentas || '',
             walink: newUser.walink || '',
             downloadsCount: 0,
-            allowedLevels: newUser.allowedLevels,
-            allowedAreas: newUser.allowedAreas,
+            allowedTools: newUser.allowedTools,
             subscription: { 
                 start: start.toISOString(), 
                 end: end 
@@ -236,7 +234,7 @@ const AdminView = () => {
                 }
             }
             
-            setNewUser({ email: '', fullName: 'Docente', role: 'user', plan: 'mensual', days: 30, scheduledTime: '', whatsappVentas: '', walink: '', allowedLevels: ['Primaria', 'Secundaria'], allowedAreas: [] });
+            setNewUser({ email: '', fullName: 'Docente', role: 'user', plan: 'mensual', days: 30, scheduledTime: '', whatsappVentas: '', walink: '', allowedTools: [], allowedLevels: [], allowedAreas: [] });
             setShowCreateForm(false);
         } catch (err) {
             console.error("❌ ERROR CRÍTICO AL CREAR USUARIO:", err);
@@ -426,7 +424,7 @@ const AdminView = () => {
         const sections = [
             { id: 'DASHBOARD', label: 'Tablero', icon: <LayoutDashboard size={18} />, desc: 'Resumen del sistema', color: 'var(--edu-logo-blue)' },
             { id: 'ACCOUNTS', label: 'Cuentas', icon: <Users size={18} />, desc: 'Accesos y Suscripciones', color: 'var(--edu-logo-blue)' },
-            { id: 'PROFILE', label: 'Mi Perfil', icon: <User size={18} />, desc: 'Ver y editar mis datos', color: '#ec4899', action: () => navigate('/profile') }
+            { id: 'PROFILE', label: 'Mi Perfil', icon: <User size={18} />, desc: 'Ver y editar mis datos', color: '#ec4899', action: () => navigate('/user') }
         ];
 
         // Admin General y Aux pueden ver Tutoriales y Auditoría
@@ -678,7 +676,7 @@ const AdminView = () => {
                         setIsSidebarOpen(false);
                     }} className="cursor-pointer transition-transform active:scale-95 flex justify-center items-center h-full w-full" title="Ir a Inicio">
                         <MenteActivaLogo 
-                            showDetails={false} 
+                            smallHeight="140px"
                             align="center" 
                             className="h-[200px] w-auto transition-all duration-300" 
                             style={{ zIndex: 50 }}
@@ -1181,130 +1179,28 @@ const AdminView = () => {
                                         </>
                                     )}
 
-                                    {/* SELECCIÓN DE NIVELES Y ÁREAS (Plan de Acceso Granular) */}
-                                    <div className="lg:col-span-2 space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
-                                        <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Niveles Permitidos</label>
+                                    {/* SELECCIÓN DE HERRAMIENTAS PERMITIDAS */}
+                                    <div className="lg:col-span-4 space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
+                                        <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Herramientas Permitidas</label>
                                         <div className="flex gap-4">
-                                            {['Inicial', 'Primaria', 'Secundaria', 'EduCruci'].map(lvl => (
-                                                <label key={lvl} className="flex items-center gap-2 cursor-pointer group">
+                                            {['Crucigramas', 'Sudoku', 'Sopa de Letras'].map(tool => (
+                                                <label key={tool} className="flex items-center gap-2 cursor-pointer group">
                                                     <input 
                                                         type="checkbox"
-                                                        checked={newUser.allowedLevels.includes(lvl)}
+                                                        checked={newUser.allowedTools.includes(tool)}
                                                         onChange={(e) => {
                                                             const isChecked = e.target.checked;
-                                                            const levels = isChecked 
-                                                                ? [...newUser.allowedLevels, lvl]
-                                                                : newUser.allowedLevels.filter(l => l !== lvl);
-                                                                
-                                                            let newAreas = [...newUser.allowedAreas];
-                                                            if (lvl === 'Inicial') {
-                                                                const iniAreas = ["Matemática", "Comunicación", "Personal Social", "Ciencia y Tecnología", "Psicomotriz", "Castellano como Segunda Lengua"].map(a => `INI_${a}`);
-                                                                if (isChecked) {
-                                                                    iniAreas.forEach(a => {
-                                                                        if (!newAreas.includes(a)) newAreas.push(a);
-                                                                    });
-                                                                } else {
-                                                                    newAreas = newAreas.filter(a => !iniAreas.includes(a));
-                                                                }
-                                                            } else if (lvl === 'Primaria') {
-                                                                const priAreas = ["Matemática", "Comunicación", "Castellano como Segunda Lengua", "Quechua Collao", "Quechua Chanca", "Quechua Central", "Personal Social", "Ciencia y Tecnología", "Arte y Cultura", "Educación Física", "Educación Religiosa", "Inglés como Lengua Extranjera"].map(a => `PRI_${a}`);
-                                                                if (isChecked) {
-                                                                    priAreas.forEach(a => {
-                                                                        if (!newAreas.includes(a)) newAreas.push(a);
-                                                                    });
-                                                                } else {
-                                                                    newAreas = newAreas.filter(a => !priAreas.includes(a));
-                                                                }
-                                                            }
-                                                            setNewUser({...newUser, allowedLevels: levels, allowedAreas: newAreas});
+                                                            const tools = isChecked 
+                                                                ? [...newUser.allowedTools, tool]
+                                                                : newUser.allowedTools.filter(t => t !== tool);
+                                                            setNewUser({...newUser, allowedTools: tools});
                                                         }}
                                                         className="w-4 h-4 rounded border-[var(--edu-border)] accent-[var(--edu-logo-blue)]"
                                                     />
-                                                    <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{lvl}</span>
+                                                    <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{tool}</span>
                                                 </label>
                                             ))}
                                         </div>
-                                    </div>
-
-                                    <div className="lg:col-span-2 space-y-4 bg-[var(--edu-bg)]/50 p-6 rounded-2xl border border-[var(--edu-border)] shadow-inner">
-                                        <label className="text-[10px] font-black uppercase text-[var(--edu-text-muted)] ml-1 tracking-widest block mb-2">
-                                            🎯 Configuración de Áreas Permitidas
-                                        </label>
-                                        
-                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                            {/* COLUMNA INICIAL */}
-                                            <div className="space-y-3">
-                                                <div className="flex items-center gap-2 pb-1 border-b border-[var(--edu-border)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--edu-text-muted)]">Nivel Inicial</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {["Matemática", "Comunicación", "Personal Social", "Ciencia y Tecnología", "Psicomotriz", "Castellano como Segunda Lengua"].map(area => (
-                                                        <AreaChip 
-                                                            key={`ini-${area}`} 
-                                                            area={area} 
-                                                            selected={newUser.allowedAreas.includes(`INI_${area}`) || newUser.allowedAreas.includes(area)} 
-                                                            onToggle={() => {
-                                                                const isSelected = newUser.allowedAreas.includes(`INI_${area}`) || newUser.allowedAreas.includes(area);
-                                                                const areas = isSelected
-                                                                    ? newUser.allowedAreas.filter(a => a !== `INI_${area}` && a !== area)
-                                                                    : [...newUser.allowedAreas, `INI_${area}`];
-                                                                setNewUser({...newUser, allowedAreas: areas});
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* COLUMNA PRIMARIA */}
-                                            <div className="space-y-3">
-                                                <div className="flex items-center gap-2 pb-1 border-b border-[var(--edu-border)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--edu-text-muted)]">Nivel Primaria</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {["Matemática", "Comunicación", "Castellano como Segunda Lengua", "Quechua Collao", "Quechua Chanca", "Quechua Central", "Personal Social", "Ciencia y Tecnología", "Arte y Cultura", "Educación Física", "Educación Religiosa", "Inglés como Lengua Extranjera", "Tutoría y Orientación Educativa"].map(area => (
-                                                        <AreaChip 
-                                                            key={`pri-${area}`} 
-                                                            area={area} 
-                                                            selected={newUser.allowedAreas.includes(`PRI_${area}`) || newUser.allowedAreas.includes(area)} 
-                                                            onToggle={() => {
-                                                                const isSelected = newUser.allowedAreas.includes(`PRI_${area}`) || newUser.allowedAreas.includes(area);
-                                                                const areas = isSelected
-                                                                    ? newUser.allowedAreas.filter(a => a !== `PRI_${area}` && a !== area)
-                                                                    : [...newUser.allowedAreas, `PRI_${area}`];
-                                                                setNewUser({...newUser, allowedAreas: areas});
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* COLUMNA SECUNDARIA */}
-                                            <div className="space-y-3">
-                                                <div className="flex items-center gap-2 pb-1 border-b border-[var(--edu-border)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--edu-text-muted)]">Nivel Secundaria</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {["Matemática", "Comunicación", "Castellano como Segunda Lengua", "Quechua Collao", "Quechua Chanca", "Quechua Central", "Ciencias Sociales", "Desarrollo Personal, Ciudadanía y Cívica", "Ciencia y Tecnología", "Arte y Cultura", "Educación Física", "Educación para el Trabajo", "Educación Religiosa", "Inglés como Lengua Extranjera", "Tutoría y Orientación Educativa"].map(area => (
-                                                        <AreaChip 
-                                                            key={`sec-${area}`} 
-                                                            area={area} 
-                                                            selected={newUser.allowedAreas.includes(`SEC_${area}`) || newUser.allowedAreas.includes(area)} 
-                                                            onToggle={() => {
-                                                                const isSelected = newUser.allowedAreas.includes(`SEC_${area}`) || newUser.allowedAreas.includes(area);
-                                                                const areas = isSelected
-                                                                    ? newUser.allowedAreas.filter(a => a !== `SEC_${area}` && a !== area)
-                                                                    : [...newUser.allowedAreas, `SEC_${area}`];
-                                                                setNewUser({...newUser, allowedAreas: areas});
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <p className="text-[9px] text-[var(--edu-text-muted)] italic mt-2 opacity-60">* Si no seleccionas ninguna área, el docente tendrá acceso a todas las áreas del sistema.</p>
                                     </div>
 
                                     <div className="lg:col-span-4 flex justify-end mt-4">
@@ -2390,125 +2286,26 @@ const AdminView = () => {
                                             </div>
                                         )}
 
-                                        <div className="space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
-                                            <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Niveles Permitidos</label>
-                                            <div className="grid grid-cols-2 gap-x-2 gap-y-3 mt-1">
-                                                {['Inicial', 'Primaria', 'Secundaria', 'EduCruci'].map(lvl => (
-                                                    <label key={lvl} className="flex items-center gap-2 cursor-pointer group">
+                                                                                <div className="space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
+                                            <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Herramientas Permitidas</label>
+                                            <div className="flex flex-wrap gap-4 mt-1">
+                                                {['Sesión, Fichas y Soluciones', 'Unidad de Aprendizaje', 'Programación Anual', 'Generador de Crucigramas'].map(tool => (
+                                                    <label key={`modal-${tool}`} className="flex items-center gap-2 cursor-pointer group">
                                                         <input 
                                                             type="checkbox"
-                                                            checked={modalLevels.includes(lvl)}
+                                                            checked={modalTools.includes(tool)}
                                                             onChange={(e) => {
                                                                 const isChecked = e.target.checked;
-                                                                const levels = isChecked 
-                                                                    ? [...modalLevels, lvl]
-                                                                    : modalLevels.filter(l => l !== lvl);
-                                                                    
-                                                                let newAreas = [...modalAreas];
-                                                                if (lvl === 'Inicial') {
-                                                                    const iniAreas = ["Matemática", "Comunicación", "Personal Social", "Ciencia y Tecnología", "Psicomotriz", "Castellano como Segunda Lengua"].map(a => `INI_${a}`);
-                                                                    if (isChecked) {
-                                                                        iniAreas.forEach(a => {
-                                                                            if (!newAreas.includes(a)) newAreas.push(a);
-                                                                        });
-                                                                    } else {
-                                                                        newAreas = newAreas.filter(a => !iniAreas.includes(a));
-                                                                    }
-                                                                } else if (lvl === 'Primaria') {
-                                                                    const priAreas = ["Matemática", "Comunicación", "Castellano como Segunda Lengua", "Quechua Collao", "Quechua Chanca", "Quechua Central", "Personal Social", "Ciencia y Tecnología", "Arte y Cultura", "Educación Física", "Educación Religiosa", "Inglés como Lengua Extranjera"].map(a => `PRI_${a}`);
-                                                                    if (isChecked) {
-                                                                        priAreas.forEach(a => {
-                                                                            if (!newAreas.includes(a)) newAreas.push(a);
-                                                                        });
-                                                                    } else {
-                                                                        newAreas = newAreas.filter(a => !priAreas.includes(a));
-                                                                    }
-                                                                }
-                                                                setModalLevels(levels);
-                                                                setModalAreas(newAreas);
+                                                                const tools = isChecked 
+                                                                    ? [...modalTools, tool]
+                                                                    : modalTools.filter(t => t !== tool);
+                                                                setModalTools(tools);
                                                             }}
                                                             className="w-4 h-4 rounded border-[var(--edu-border)] accent-[var(--edu-logo-blue)]"
                                                         />
-                                                        <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{lvl}</span>
+                                                        <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{tool}</span>
                                                     </label>
                                                 ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4 bg-[var(--edu-bg)]/50 p-6 rounded-2xl border border-[var(--edu-border)] shadow-inner">
-                                        <label className="text-[10px] font-black uppercase text-[var(--edu-text-muted)] ml-1 tracking-widest block mb-2">
-                                            🎯 Áreas Permitidas
-                                        </label>
-                                        
-                                        <div className="space-y-4 max-h-[300px] overflow-y-auto premium-scrollbar pr-2">
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2 pb-1 border-b border-[var(--edu-border)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--edu-text-muted)]">Inicial</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {["Matemática", "Comunicación", "Personal Social", "Ciencia y Tecnología", "Psicomotriz", "Castellano como Segunda Lengua"].map(area => (
-                                                        <AreaChip 
-                                                            key={`modal-ini-${area}`} 
-                                                            area={area} 
-                                                            selected={modalAreas.includes(`INI_${area}`) || modalAreas.includes(area)} 
-                                                            onToggle={() => {
-                                                                const isSelected = modalAreas.includes(`INI_${area}`) || modalAreas.includes(area);
-                                                                const areas = isSelected
-                                                                    ? modalAreas.filter(a => a !== `INI_${area}` && a !== area)
-                                                                    : [...modalAreas, `INI_${area}`];
-                                                                setModalAreas(areas);
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2 pb-1 border-b border-[var(--edu-border)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--edu-text-muted)]">Primaria</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {["Matemática", "Comunicación", "Castellano como Segunda Lengua", "Quechua Collao", "Quechua Chanca", "Quechua Central", "Personal Social", "Ciencia y Tecnología", "Arte y Cultura", "Educación Física", "Educación Religiosa", "Inglés como Lengua Extranjera", "Tutoría y Orientación Educativa"].map(area => (
-                                                        <AreaChip 
-                                                            key={`modal-pri-${area}`} 
-                                                            area={area} 
-                                                            selected={modalAreas.includes(`PRI_${area}`) || modalAreas.includes(area)} 
-                                                            onToggle={() => {
-                                                                const isSelected = modalAreas.includes(`PRI_${area}`) || modalAreas.includes(area);
-                                                                const areas = isSelected
-                                                                    ? modalAreas.filter(a => a !== `PRI_${area}` && a !== area)
-                                                                    : [...modalAreas, `PRI_${area}`];
-                                                                setModalAreas(areas);
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2 pb-1 border-b border-[var(--edu-border)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--edu-text-muted)]">Secundaria</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {["Matemática", "Comunicación", "Castellano como Segunda Lengua", "Quechua Collao", "Quechua Chanca", "Quechua Central", "Ciencias Sociales", "Desarrollo Personal, Ciudadanía y Cívica", "Ciencia y Tecnología", "Arte y Cultura", "Educación Física", "Educación para el Trabajo", "Educación Religiosa", "Inglés como Lengua Extranjera", "Tutoría y Orientación Educativa"].map(area => (
-                                                        <AreaChip 
-                                                            key={`modal-sec-${area}`} 
-                                                            area={area} 
-                                                            selected={modalAreas.includes(`SEC_${area}`) || modalAreas.includes(area)} 
-                                                            onToggle={() => {
-                                                                const isSelected = modalAreas.includes(`SEC_${area}`) || modalAreas.includes(area);
-                                                                const areas = isSelected
-                                                                    ? modalAreas.filter(a => a !== `SEC_${area}` && a !== area)
-                                                                    : [...modalAreas, `SEC_${area}`];
-                                                                setModalAreas(areas);
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2533,8 +2330,7 @@ const AdminView = () => {
                                             const updatedUser = { 
                                                 ...planModalUser, 
                                                 plan: newPlan, 
-                                                allowedLevels: modalLevels,
-                                                allowedAreas: modalAreas,
+                                                allowedTools: modalTools,
                                                 scheduledTime: newPlan === 'prueba' ? modalScheduledTime : planModalUser.scheduledTime,
                                                 trialStartTime: newPlan === 'prueba' ? (planModalUser.trialStartTime || getPeruDate().toISOString()) : planModalUser.trialStartTime,
                                                 subscription: { ...planModalUser.subscription, end: end } 

@@ -30,14 +30,13 @@ const TutorialView = () => {
                 <div className="flex items-center gap-6">
                     <div onClick={() => navigate('/')} className="cursor-pointer transition-transform active:scale-95" title="Ir a Inicio">
                         <MenteActivaLogo 
-                            showDetails={false} 
                             align="left" 
                             imgHeight="h-[100px]" 
                             className="ml-[-20px] drop-shadow-[0_0_40px_rgba(59,130,246,0.5)] transition-all" 
                             style={{ transform: 'scale(1.4175) translate(20px, 0px)', zIndex: 50 }}
                         />
                     </div>
-                    <button onClick={() => navigate('/profile')} className="ml-[100px] p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 transition-colors">
+                    <button onClick={() => navigate('/user')} className="ml-[100px] p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 transition-colors">
                         <ChevronLeft size={18} />
                     </button>
                     <div>

@@ -21,10 +21,6 @@ const AccountSection = () => {
         fullName: user?.fullName || 'Pepito Pérez',
         age: user?.age || 28,
         email: user?.email || 'pepito@educrea.com',
-        dre: user?.dre || '',
-        ugel: user?.ugel || '',
-        ie: user?.ie || '',
-        director: user?.director || '',
         whatsappVentas: user?.whatsappVentas || '',
         walink: user?.walink || '',
         phoneNumber: user?.phoneNumber || ''
@@ -94,14 +90,14 @@ const AccountSection = () => {
                                     Suscripción Activa
                                 </span>
                                 <span className="text-[10px] font-bold text-[var(--edu-text-muted)]">
-                                    Vence: {formatDate(user?.subscription?.end)}
+                                    Vence: {user?.plan === 'ilimitado' ? 'NUNCA (ILIMITADO)' : formatDate(user?.subscription?.end)}
                                 </span>
                             </div>
                             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] opacity-70">Niveles:</span>
-                                {(user?.allowedLevels?.length > 0 ? user.allowedLevels : ['Todos']).map((level, i) => (
+                                <span className="text-[9px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] opacity-70">Herramientas:</span>
+                                {(user?.allowedTools?.length > 0 ? user.allowedTools : ['Todas']).map((tool, i) => (
                                     <span key={i} className="px-2 py-0.5 bg-[var(--edu-bg-card)] text-[var(--edu-logo-blue)] rounded-md text-[10px] font-bold border border-[var(--edu-logo-blue)]/20">
-                                        {level}
+                                        {tool}
                                     </span>
                                 ))}
                             </div>
@@ -151,62 +147,6 @@ const AccountSection = () => {
                     </div>
                 </div>
 
-                {!isAdmin && (
-                    <>
-                        {/* Tarjeta: Datos Educativos */}
-                        <div className="bg-[var(--edu-bg-card)] p-8 rounded-[2rem] border border-[var(--edu-border)] shadow-sm space-y-6 relative">
-                            <div className="flex items-center gap-3 mb-2">
-                                <h2 className="text-[14px] font-black uppercase tracking-widest text-[var(--edu-text-main)]">Datos Educativos</h2>
-                            </div>
-                            <p className="text-[11px] text-[var(--edu-text-muted)] font-medium -mt-4 mb-4">
-                                Estos datos se autocompletarán en tus generadores de documentos.
-                            </p>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] ml-1">DRE</label>
-                                    <input 
-                                        type="text"
-                                        value={formData.dre}
-                                        onChange={(e) => setFormData({...formData, dre: e.target.value})}
-                                        placeholder="Ej: Lima Metropolitana"
-                                        className="w-full px-5 py-4 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-2xl text-[var(--edu-text-main)] focus:ring-2 focus:ring-[var(--edu-accent)]/20 focus:border-[var(--edu-accent)]/50 outline-none transition-all shadow-sm"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] ml-1">UGEL</label>
-                                    <input 
-                                        type="text"
-                                        value={formData.ugel}
-                                        onChange={(e) => setFormData({...formData, ugel: e.target.value})}
-                                        placeholder="Ej: 01 San Juan"
-                                        className="w-full px-5 py-4 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-2xl text-[var(--edu-text-main)] focus:ring-2 focus:ring-[var(--edu-accent)]/20 focus:border-[var(--edu-accent)]/50 outline-none transition-all shadow-sm"
-                                    />
-                                </div>
-                                <div className="space-y-2 sm:col-span-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] ml-1">Institución Educativa</label>
-                                    <input 
-                                        type="text"
-                                        value={formData.ie}
-                                        onChange={(e) => setFormData({...formData, ie: e.target.value})}
-                                        placeholder="Nombre de tu I.E."
-                                        className="w-full px-5 py-4 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-2xl text-[var(--edu-text-main)] focus:ring-2 focus:ring-[var(--edu-accent)]/20 focus:border-[var(--edu-accent)]/50 outline-none transition-all shadow-sm"
-                                    />
-                                </div>
-                                <div className="space-y-2 sm:col-span-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] ml-1">Nombre del Director(a)</label>
-                                    <input 
-                                        type="text"
-                                        value={formData.director}
-                                        onChange={(e) => setFormData({...formData, director: e.target.value})}
-                                        placeholder="Lic. Nombre Apellido"
-                                        className="w-full px-5 py-4 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-2xl text-[var(--edu-text-main)] focus:ring-2 focus:ring-[var(--edu-accent)]/20 focus:border-[var(--edu-accent)]/50 outline-none transition-all shadow-sm"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
 
                 {/* Tarjeta: Seguridad */}
                 <div className="bg-[var(--edu-bg-card)] p-8 rounded-[2rem] border border-[var(--edu-border)] shadow-sm space-y-6">

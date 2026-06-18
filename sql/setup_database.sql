@@ -1,33 +1,58 @@
 -- ====================================================================
--- 🚀 EDUCORE MASTER SETUP SCRIPT (v3.6) - CORRECCIÓN DE PERSISTENCIA
+-- 🚀 MENTEACTIVA MASTER SETUP SCRIPT (v1.0)
 -- ====================================================================
 
--- 1. ACTIVAR CRIPTOGRAFÍA (Opcional, se mantiene por compatibilidad)
+-- 1. ACTIVAR CRIPTOGRAFÍA
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- 2. ASEGURAR ESTRUCTURA DE TABLA (Sincronizado con Producción)
-ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS dre TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS ugel TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS ie TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS age INTEGER;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS created_by TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS allowed_levels TEXT[];
-ALTER TABLE users ADD COLUMN IF NOT EXISTS allowed_areas TEXT[];
-ALTER TABLE users ADD COLUMN IF NOT EXISTS scheduled_time TIMESTAMPTZ;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMPTZ;
+-- 2. CREACIÓN DE TABLAS BASE
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    username TEXT,
+    full_name TEXT,
+    password TEXT,
+    role TEXT DEFAULT 'user',
+    plan TEXT DEFAULT 'mensual',
+    downloads_count INTEGER DEFAULT 0,
+    whatsapp_ventas TEXT,
+    phone_number TEXT,
+    walink TEXT,
+    created_by TEXT,
+    age INTEGER,
+    allowed_tools TEXT[] DEFAULT '{}',
+    subscription_start TIMESTAMPTZ,
+    subscription_end TIMESTAMPTZ,
+    trial_start_time TIMESTAMPTZ,
+    scheduled_time TIMESTAMPTZ,
+    terms_accepted_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value JSONB,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT,
+    action TEXT,
+    details JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
 -- 3. FUNCIÓN DE "ENCRIPTACIÓN" (PASS-THROUGH PARA TEXTO PURO)
 CREATE OR REPLACE FUNCTION encrypt_pdl_password(raw_password TEXT) 
 RETURNS TEXT AS $$
 BEGIN
-    -- Retorna el texto tal cual, sin encriptar, como se solicitó
     RETURN raw_password;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 4. FUNCIÓN DE DESENCRIPTACIÓN (PARA COMPATIBILIDAD)
+-- 4. FUNCIÓN DE DESENCRIPTACIÓN
 CREATE OR REPLACE FUNCTION decrypt_pdl_password(encrypted_password TEXT) 
 RETURNS TEXT AS $$
 BEGIN
@@ -35,10 +60,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 5. VENTANILLAS SEGURAS (RPC) - ACTUALIZADAS CON TODAS LAS COLUMNAS
--- --------------------------------------------------------------------
-
--- A. ACTUALIZACIÓN MASIVA (ADMIN) - VERSIÓN ROBUSTA
+-- 5. VENTANILLAS SEGURAS (RPC)
+-- A. ACTUALIZACIÓN MASIVA (ADMIN)
 CREATE OR REPLACE FUNCTION upsert_users_bulk_secure(
     p_admin_email TEXT, 
     p_admin_password TEXT,
@@ -49,7 +72,6 @@ DECLARE
     v_role TEXT;
     user_record JSONB;
 BEGIN
-    -- Validación de Admin (Texto Puro)
     SELECT role INTO v_role FROM users 
     WHERE LOWER(email) = LOWER(p_admin_email) 
     AND password = p_admin_password;
@@ -62,10 +84,9 @@ BEGIN
     LOOP
         INSERT INTO users (
             id, email, username, full_name, password, role, plan, 
-            whatsapp_ventas, phone_number, created_by,
+            whatsapp_ventas, phone_number, walink, created_by, age,
             subscription_start, subscription_end, trial_start_time, scheduled_time,
-            allowed_levels, allowed_areas,
-            dre, ugel, ie, age, walink
+            allowed_tools
         )
         VALUES (
             user_record->>'id',
@@ -74,52 +95,43 @@ BEGIN
             user_record->>'full_name',
             CASE 
                 WHEN user_record->>'password' IS NULL THEN (SELECT password FROM users WHERE id = user_record->>'id')
-                ELSE user_record->>'password' -- TEXTO PURO
+                ELSE user_record->>'password'
             END,
             user_record->>'role',
             user_record->>'plan',
             user_record->>'whatsapp_ventas',
             user_record->>'phone_number',
+            user_record->>'walink',
             user_record->>'created_by',
+            (user_record->>'age')::INTEGER,
             (user_record->>'subscription_start')::TIMESTAMPTZ,
             (user_record->>'subscription_end')::TIMESTAMPTZ,
             (user_record->>'trial_start_time')::TIMESTAMPTZ,
             (user_record->>'scheduled_time')::TIMESTAMPTZ,
-            ARRAY(SELECT jsonb_array_elements_text(COALESCE(user_record->'allowed_levels', '[]'::jsonb))),
-            ARRAY(SELECT jsonb_array_elements_text(COALESCE(user_record->'allowed_areas', '[]'::jsonb))),
-            user_record->>'dre',
-            user_record->>'ugel',
-            user_record->>'ie',
-            (user_record->>'age')::INTEGER,
-            user_record->>'walink'
+            ARRAY(SELECT jsonb_array_elements_text(COALESCE(user_record->'allowed_tools', '[]'::jsonb)))
         )
         ON CONFLICT (id) DO UPDATE SET
             email = EXCLUDED.email,
             username = EXCLUDED.username,
             full_name = EXCLUDED.full_name,
-            password = EXCLUDED.password, -- Permite actualizar clave
+            password = EXCLUDED.password,
             role = EXCLUDED.role,
             plan = EXCLUDED.plan,
             whatsapp_ventas = EXCLUDED.whatsapp_ventas,
             phone_number = EXCLUDED.phone_number,
+            walink = EXCLUDED.walink,
+            age = COALESCE(EXCLUDED.age, users.age),
             subscription_start = EXCLUDED.subscription_start,
             subscription_end = EXCLUDED.subscription_end,
             trial_start_time = EXCLUDED.trial_start_time,
             scheduled_time = EXCLUDED.scheduled_time,
-            allowed_levels = EXCLUDED.allowed_levels,
-            allowed_areas = EXCLUDED.allowed_areas,
-            walink = EXCLUDED.walink,
-            -- BLINDAJE: Solo sobreescribe si el admin envía un valor no vacío
-            dre = COALESCE(NULLIF(EXCLUDED.dre, ''), users.dre),
-            ugel = COALESCE(NULLIF(EXCLUDED.ugel, ''), users.ugel),
-            ie = COALESCE(NULLIF(EXCLUDED.ie, ''), users.ie),
-            age = COALESCE(EXCLUDED.age, users.age),
+            allowed_tools = EXCLUDED.allowed_tools,
             updated_at = NOW();
     END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- B. ACTUALIZACIÓN DE PERFIL (Para el propio usuario) - ACTUALIZADA
+-- B. ACTUALIZACIÓN DE PERFIL
 CREATE OR REPLACE FUNCTION update_user_profile_secure(
     p_user_id TEXT,
     p_email TEXT,
@@ -130,7 +142,6 @@ RETURNS VOID AS $$
 DECLARE
     v_req_id TEXT;
 BEGIN
-    -- Validar credenciales (Texto Puro)
     SELECT id INTO v_req_id FROM users 
     WHERE id = p_user_id AND LOWER(email) = LOWER(p_email) 
     AND password = p_password;
@@ -140,9 +151,6 @@ BEGIN
     UPDATE users SET 
         full_name = COALESCE(p_update_data->>'full_name', full_name),
         phone_number = COALESCE(p_update_data->>'phone_number', phone_number),
-        dre = COALESCE(p_update_data->>'dre', dre),
-        ugel = COALESCE(p_update_data->>'ugel', ugel),
-        ie = COALESCE(p_update_data->>'ie', ie),
         age = COALESCE((p_update_data->>'age')::INTEGER, age),
         walink = COALESCE(p_update_data->>'walink', walink),
         whatsapp_ventas = COALESCE(p_update_data->>'whatsapp_ventas', whatsapp_ventas),
@@ -151,7 +159,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- C. LOGIN SEGURO (Texto Puro)
+-- C. LOGIN SEGURO
 CREATE OR REPLACE FUNCTION login_user(p_identifier TEXT, p_password TEXT) 
 RETURNS SETOF users AS $$
 BEGIN
@@ -162,13 +170,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- D. OBTENER LISTA DE USUARIOS (ADMIN)
+-- D. OBTENER LISTA DE USUARIOS
 CREATE OR REPLACE FUNCTION get_admin_users_list(p_admin_email TEXT, p_admin_password TEXT)
 RETURNS SETOF users AS $$
 DECLARE
     v_role TEXT;
 BEGIN
-    -- Validación de Admin (Texto Puro)
     SELECT role INTO v_role FROM users 
     WHERE LOWER(email) = LOWER(p_admin_email) 
     AND password = p_admin_password;
@@ -181,3 +188,62 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- E. OBTENER CONTACTO PÚBLICO
+CREATE OR REPLACE FUNCTION get_admin_contact_public(p_identifier TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    v_walink TEXT;
+    v_whatsapp TEXT;
+BEGIN
+    SELECT walink, whatsapp_ventas INTO v_walink, v_whatsapp 
+    FROM users 
+    WHERE id = p_identifier OR username = p_identifier 
+    LIMIT 1;
+
+    IF v_walink IS NOT NULL AND v_walink != '' THEN
+        RETURN v_walink;
+    ELSIF v_whatsapp IS NOT NULL AND v_whatsapp != '' THEN
+        RETURN 'https://wa.me/51' || v_whatsapp;
+    ELSE
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- F. OBTENER CONTACTO FULL
+CREATE OR REPLACE FUNCTION get_admin_contact_full(p_identifier TEXT)
+RETURNS TABLE (v_walink TEXT, v_phone TEXT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT walink, whatsapp_ventas
+    FROM users
+    WHERE id = p_identifier OR username = p_identifier
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- G. ELIMINAR USUARIO
+CREATE OR REPLACE FUNCTION delete_user_secure(p_admin_email TEXT, p_admin_password TEXT, p_target_user_id TEXT)
+RETURNS VOID AS $$
+DECLARE
+    v_role TEXT;
+BEGIN
+    SELECT role INTO v_role FROM users 
+    WHERE LOWER(email) = LOWER(p_admin_email) 
+    AND password = p_admin_password;
+
+    IF v_role NOT IN ('admin_general', 'admin_aux') THEN
+        RAISE EXCEPTION 'No autorizado';
+    END IF;
+
+    DELETE FROM users WHERE id = p_target_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- H. ACEPTAR TÉRMINOS
+CREATE OR REPLACE FUNCTION accept_terms_secure(p_user_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE users SET terms_accepted_at = NOW() WHERE id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { Home, Sparkles, BookOpen, Calendar, Lightbulb, ArrowRight, Zap, ShieldCheck, LayoutGrid, Lock, MessageCircle, AlertTriangle, Clock } from 'lucide-react';
+import crucigramaIcon from '../../../assets/icono_crucigrama-1.png';
+import sopaIcon from '../../../assets/icono_sopa_1.png';
+import sudokuIcon from '../../../assets/ICONO SUDOKU.PNG';
 
 const DashboardSection = () => {
     const { user } = useAuth();
@@ -44,16 +47,16 @@ const DashboardSection = () => {
     }, []);
 
     const isAdmin = user?.role === 'admin_general' || user?.role === 'admin_aux';
-    const showUnidocente = isAdmin || (user?.allowedLevels && user.allowedLevels.includes('Primaria'));
+    const showUnidocente = isAdmin || (user?.allowedTools && user.allowedTools.includes('Primaria'));
     // Feature Flag: Inicial oculto en producción para usuarios regulares hasta liberación oficial
-    const showInicial = isAdmin || (user?.allowedLevels && user.allowedLevels.includes('Inicial'));
+    const showInicial = isAdmin || (user?.allowedTools && user.allowedTools.includes('Inicial'));
 
     // Lógica de Vencimiento
     let daysLeft = null;
     let isExpired = false;
     let showWarning = false;
     
-    if (!isAdmin && user?.subscription?.end) {
+    if (!isAdmin && user?.plan !== 'ilimitado' && user?.subscription?.end) {
         const endDate = new Date(user.subscription.end);
         const today = new Date();
         daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -66,107 +69,30 @@ const DashboardSection = () => {
 
     const cards = [
         {
-            title: "Sesión, Fichas y Soluciones",
-            desc: "Incluye instrumentos de evaluación detallados.",
-            icon: <Sparkles size={22} />,
-            color: "#f59e0b",
-            bg: "bg-amber-500",
-            hover: "hover:shadow-amber-500/20 hover:border-amber-500/50",
-            path: "/generator"
-        },
-        {
-            title: "Unidad de Aprendizaje",
-            desc: "Planificación y unidades",
-            icon: <BookOpen size={22} />,
-            color: "#a855f7",
-            bg: "bg-purple-500",
-            hover: "hover:shadow-purple-500/20 hover:border-purple-500/50",
-            path: "/unit-generator"
-        },
-        {
-            title: "Programación Anual",
-            desc: "Plan Anual y Calendarización",
-            icon: <Calendar size={22} />,
-            color: "#3b82f6",
-            bg: "bg-blue-500",
-            hover: "hover:shadow-blue-500/20 hover:border-blue-500/50",
-            path: "/annual-program"
-        }
-    ];
-
-    const showEduCruci = isAdmin || (user?.allowedLevels && user.allowedLevels.includes('EduCruci'));
-    
-    if (showEduCruci) {
-        cards.push({
-            title: "Generador de Crucigramas",
-            desc: "Crucigramas y Sopa de Letras con IA",
-            icon: <LayoutGrid size={22} />,
+            title: "CRUCIGRAMAS",
+            icon: <img src={crucigramaIcon} alt="Crucigramas" className="w-20 h-20 object-contain drop-shadow-lg" />,
             color: "#f97316",
             bg: "bg-orange-500",
             hover: "hover:shadow-orange-500/20 hover:border-orange-500/50",
-            path: "/crucigrama"
-        });
-    }
-
-    if (showUnidocente) {
-        cards.push({
-            title: "Unidad Multiaérea",
-            desc: "PRIMARIA UNIDAD INTEGRAL",
-            icon: <BookOpen size={22} />,
-            color: "#10b981",
-            bg: "bg-emerald-400",
-            hover: "hover:shadow-emerald-400/20 hover:border-emerald-400/50",
-            path: "/unit-unidocente"
-        });
-        cards.push({
-            title: "PCA Multiaérea",
-            desc: "PRIMARIA PCA INTEGRAL",
-            icon: <Calendar size={22} />,
-            color: "#10b981",
-            bg: "bg-emerald-400",
-            hover: "hover:shadow-emerald-400/20 hover:border-emerald-400/50",
-            path: "/annual-unidocente"
-        });
-    }
-
-    if (showInicial) {
-        cards.push({
-            title: "Sesión Inicial",
-            desc: "Fichas y Soluciones",
-            icon: <Sparkles size={22} />,
-            color: "#ec4899",
-            bg: "bg-pink-400",
-            hover: "hover:shadow-pink-400/20 hover:border-pink-400/50",
-            path: "/session-inicial"
-        });
-        cards.push({
-            title: "Taller Inicial",
-            desc: "Talleres",
-            icon: <Sparkles size={22} />,
-            color: "#ec4899",
-            bg: "bg-pink-400",
-            hover: "hover:shadow-pink-400/20 hover:border-pink-400/50",
-            path: "/taller-inicial"
-        });
-        cards.push({
-            title: "Proyecto Inicial",
-            desc: "Inicial",
-            icon: <BookOpen size={22} />,
-            color: "#ec4899",
-            bg: "bg-pink-400",
-            hover: "hover:shadow-pink-400/20 hover:border-pink-400/50",
-            path: "/unit-inicial"
-        });
-        cards.push({
-            title: "PCA INICIAL",
-            desc: "Inicial",
-            icon: <Calendar size={22} />,
-            color: "#ec4899",
-            bg: "bg-pink-400",
-            hover: "hover:shadow-pink-400/20 hover:border-pink-400/50",
-            path: "/annual-inicial"
-        });
-    }
+            path: "/crucigramas"
+        },
+        {
+            title: "SOPA DE LETRAS",
+            icon: <img src={sopaIcon} alt="Sopa de Letras" className="w-20 h-20 object-contain drop-shadow-lg" />,
+            color: "#3b82f6",
+            bg: "bg-blue-500",
+            hover: "hover:shadow-blue-500/20 hover:border-blue-500/50",
+            path: "/sopadeletras"
+        },
+        {
+            title: "SUDOKU",
+            icon: <img src={sudokuIcon} alt="Sudoku" className="w-20 h-20 object-contain drop-shadow-lg" />,
+            color: "#8b5cf6", // Purple color to distinguish it
+            bg: "bg-violet-500",
+            hover: "hover:shadow-violet-500/20 hover:border-violet-500/50",
+            path: "/sudoku"
+        }
+    ];
 
     return (
         <div className="space-y-8 pb-10">
@@ -242,20 +168,22 @@ const DashboardSection = () => {
                             )}
                             <div className={`absolute top-0 right-0 w-24 h-24 ${card.bg} opacity-[0.05] rounded-full blur-2xl -mr-8 -mt-8 ${!blocked ? 'group-hover:opacity-20' : ''} transition-opacity duration-500`}></div>
                             
-                            <div className={`relative z-10 flex flex-col h-full ${blocked ? 'opacity-50' : ''}`}>
+                            <div className={`relative z-10 flex flex-col items-center text-center h-full ${blocked ? 'opacity-50' : ''}`}>
                                 <div 
-                                    className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 shadow-inner transition-transform duration-300 ${!blocked ? 'group-hover:scale-110' : ''}`}
+                                    className={`w-24 h-24 rounded-3xl flex items-center justify-center mb-6 shadow-inner transition-transform duration-300 ${!blocked ? 'group-hover:scale-110' : ''}`}
                                     style={{ backgroundColor: `${card.color}15`, color: card.color }}
                                 >
                                     {card.icon}
                                 </div>
                                 
-                                <h3 className={`text-xl uppercase font-black text-[var(--edu-text-main)] leading-tight mb-1.5 transition-colors ${!blocked ? 'group-hover:text-[var(--edu-logo-blue)]' : ''}`}>
+                                <h3 className={`text-xl uppercase font-black text-[var(--edu-text-main)] leading-tight mb-1.5 transition-colors ${!blocked ? 'group-hover:text-[var(--edu-logo-blue)]' : ''} ${!card.desc ? 'flex-1' : ''}`}>
                                     {card.title}
                                 </h3>
-                                <p className="text-[11px] text-[var(--edu-text-muted)] font-medium flex-1">
-                                    {card.desc}
-                                </p>
+                                {card.desc && (
+                                    <p className="text-[11px] text-[var(--edu-text-muted)] font-medium flex-1">
+                                        {card.desc}
+                                    </p>
+                                )}
 
                                 <div className="mt-4 flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-colors" style={{ color: card.color }}>
                                     <span>{blocked ? 'Bloqueado' : 'Iniciar'}</span>
@@ -268,7 +196,7 @@ const DashboardSection = () => {
             </div>
 
             {/* Info Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                 
                 {/* Tutoriales */}
                 <div className="bg-gradient-to-br from-[var(--edu-bg-card)] to-[var(--edu-bg)] border border-[var(--edu-border)] rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm relative overflow-hidden group hover:border-pink-500/50 transition-colors cursor-pointer" onClick={() => navigate('/tutorial')}>
@@ -276,10 +204,10 @@ const DashboardSection = () => {
                         <Zap size={20} />
                     </div>
                     <div className="relative z-10">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-pink-500 mb-1">Academia</h4>
-                        <h3 className="text-base font-bold text-[var(--edu-text-main)] mb-1">Centro de Capacitación</h3>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-pink-500 mb-1">Capacitación</h4>
+                        <h3 className="text-base font-bold text-[var(--edu-text-main)] mb-1">Tutoriales</h3>
                         <p className="text-xs text-[var(--edu-text-muted)] leading-relaxed">
-                            Aprende a dominar EduCrea paso a paso con nuestros videos.
+                            Aprende a dominar Mente Activa paso a paso con nuestros videos.
                         </p>
                     </div>
                 </div>
@@ -295,23 +223,6 @@ const DashboardSection = () => {
                         <p className="text-xs text-[var(--edu-text-muted)] leading-relaxed">
                             Si estás dentro de una herramienta y deseas volver a este menú principal, solo haz clic en el ícono de la tuerca ⚙️ ubicado arriba a la izquierda.
                         </p>
-                    </div>
-                </div>
-
-                {/* Tip Card */}
-                <div className="xl:col-span-2 lg:col-span-1 bg-gradient-to-br from-[var(--edu-bg-card)] to-[var(--edu-bg)] border border-[var(--edu-border)] rounded-[2rem] p-6 flex flex-col md:flex-row items-start gap-4 shadow-sm relative overflow-hidden group">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 flex-shrink-0">
-                        <Lightbulb size={20} />
-                    </div>
-                    <div className="relative z-10">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">💡 Tip EduCrea</h4>
-                        <h3 className="text-base font-bold text-[var(--edu-text-main)] mb-1">Aprovecha el MODO EXPRESS</h3>
-                        <p className="text-xs text-[var(--edu-text-muted)] leading-relaxed">
-                            ¿Tienes poco tiempo? Utiliza la pestaña <span className="font-bold text-purple-500">✨ MODO EXPRESS</span> dentro de Sesión de Aprendizaje y genera todo tu plan en segundos.
-                        </p>
-                    </div>
-                    <div className="absolute -bottom-10 -right-10 text-amber-500/5 rotate-12 group-hover:rotate-0 transition-transform duration-700 pointer-events-none">
-                        <Lightbulb size={120} />
                     </div>
                 </div>
 

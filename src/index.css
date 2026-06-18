@@ -1,16 +1,38 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-chewy: 'Chewy', cursive;
+}
 
 @layer base {
   :root {
     --bg-color: #ffffff;
-    --text-color: #2D3436; /* Neutro de Marca (Mente) */
+    --text-color: #2D3436;
+    
+    /* Variables del Sistema (Estética EduCrea Original) */
+    --edu-bg: #f0f9ff;
+    --edu-bg-card: #ffffff;
+    --edu-border: #e0f2fe;
+    --edu-text-main: #0f172a;
+    --edu-text-muted: #64748b;
+    --edu-accent: #3b82f6;
+    --edu-logo-blue: #3b82f6;
+    --edu-logo-green: #10b981;
   }
 
   [data-theme="dark"] {
-    --bg-color: #1a1a1a;
-    --text-color: #F0F7FF; /* Modo Oscuro (Mente) */
+    --bg-color: #0b1121;
+    --text-color: #f8fafc;
+
+    /* Variables del Sistema (Estética EduCrea Original Oscura) */
+    --edu-bg: #0b1121;
+    --edu-bg-card: #151e32;
+    --edu-border: #1e293b;
+    --edu-text-main: #f8fafc;
+    --edu-text-muted: #94a3b8;
+    --edu-accent: #3b82f6;
+    --edu-logo-blue: #3b82f6;
+    --edu-logo-green: #10b981;
   }
 
   body {
@@ -18,5 +40,34 @@
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
     font-family: 'Quicksand', sans-serif;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media screen {
+  .hoja-preview {
+    transform: scale(0.65);
+    transform-origin: top left;
+  }
+}
+
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .hoja-preview {
+    transform: none !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    box-shadow: none !important;
+    margin: 0 !important;
   }
 }

@@ -52,7 +52,7 @@ const UserView = () => {
                 <div className="h-[180px] px-6 border-b border-[var(--edu-border)] flex justify-center items-center bg-[var(--edu-bg-sidebar)]/50 backdrop-blur-md transition-all duration-500 overflow-visible relative">
                     <div onClick={() => navigate('/')} className="cursor-pointer transition-transform active:scale-95 flex justify-center items-center h-full w-full" title="Ir a Inicio">
                         <MenteActivaLogo 
-                            showDetails={false} 
+                            smallHeight="140px"
                             align="center" 
                             className="h-[200px] w-auto transition-all duration-300" 
                             style={{ zIndex: 50 }}

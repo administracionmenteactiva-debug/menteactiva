@@ -26,7 +26,7 @@ const LoginView = () => {
                 if (role === 'admin_general' || role === 'admin_aux') {
                     navigate('/admin');
                 } else {
-                    navigate('/profile');
+                    navigate('/user');
                 }
             } else {
                 alert('Credenciales incorrectas. Por favor verifica tu usuario y contraseña.');
@@ -161,7 +161,7 @@ const LoginView = () => {
 
                     <div className="mt-8 text-center">
                         <p className="text-[10px] text-[var(--edu-text-muted)] opacity-70">
-                            &copy; 2026 Educrea. Potenciando la educación con IA.
+                            &copy; 2026 Mente Activa. Potenciando la educación con IA.
                         </p>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [showIds, setShowIds] = useState(false);
     const [referrerContact, setReferrerContact] = useState({ walink: 'https://wa.me/51993125547', phone: '993125547' });
-    const [theme, setTheme] = useState(() => localStorage.getItem('educrea_theme') || 'light');
+    const [theme, setTheme] = useState(() => localStorage.getItem('educrea_theme') || 'dark');
 
     // --- 1. UTILIDADES BÁSICAS (Primero para que estén disponibles) ---
     /**
@@ -238,7 +238,7 @@ export const AuthProvider = ({ children }) => {
                             borderTopColor: 'transparent', borderRadius: '50%', 
                             animation: 'spin 1s linear infinite', margin: '0 auto 15px'
                         }}></div>
-                        <p style={{ fontSize: '14px', opacity: 0.8 }}>Conectando con Educrea</p>
+                        <p style={{ fontSize: '14px', opacity: 0.8 }}>Conectando con Mente Activa</p>
                         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                     </div>
                 </div>
