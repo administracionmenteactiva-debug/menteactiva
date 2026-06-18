@@ -1673,6 +1673,25 @@ const AdminView = () => {
                                             </div>
 
                                             <div className="space-y-2">
+                                                <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Encabezado Celeste</label>
+                                                <input 
+                                                    type="text"
+                                                    placeholder="Ej: ¡Hola, {nombre}!"
+                                                    value={globalVars.META_EMAIL_CONFIG?.[globalVars.META_EMAIL_CONFIG?.current || 'welcome']?.greeting || ''}
+                                                    onChange={(e) => {
+                                                        const current = globalVars.META_EMAIL_CONFIG?.current || 'welcome';
+                                                        updateGlobalVars({ 
+                                                            META_EMAIL_CONFIG: { 
+                                                                ...globalVars.META_EMAIL_CONFIG, 
+                                                                [current]: { ...globalVars.META_EMAIL_CONFIG[current], greeting: e.target.value } 
+                                                            } 
+                                                        });
+                                                    }}
+                                                    className="w-full px-5 py-4 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-2xl text-xs outline-none focus:border-amber-500 transition-all font-bold text-[#3b82f6]"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
                                                 <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Mensaje</label>
                                                 <textarea 
                                                     rows={10}
@@ -1754,7 +1773,9 @@ const AdminView = () => {
                                         <div className="text-[10px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] mb-8 opacity-40">Vista Previa en Tiempo Real</div>
                                         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-300">
                                             <div className="p-8">
-                                                <h1 className="text-[#3b82f6] text-2xl font-black text-center mb-6">¡Hola, [Nombre]!</h1>
+                                                <h1 className="text-[#3b82f6] text-2xl font-black text-center mb-6">
+                                                    {(globalVars.META_EMAIL_CONFIG?.[globalVars.META_EMAIL_CONFIG?.current || 'welcome']?.greeting || '¡Hola, {nombre}!').replace('{nombre}', '[Nombre]')}
+                                                </h1>
                                                 <p className="text-sm text-slate-600 leading-relaxed text-center whitespace-pre-line mb-8 font-medium italic">
                                                     "{globalVars.META_EMAIL_CONFIG?.[globalVars.META_EMAIL_CONFIG?.current || 'welcome']?.body?.replace('{agenda}', '15 de Mayo a las 3:00 PM')}"
                                                 </p>
