@@ -34,7 +34,7 @@ const AdminView = () => {
     // Función para copiar credenciales formateadas para WhatsApp
     const handleCopyCredentials = (email, password) => {
         const domain = window.location.origin;
-        const text = `✨ *ACCESO EDUCREA* ✨\n\nAquí tienes tus accesos a la plataforma:\n\n📧 *Usuario:* ${email}\n🔑 *Contraseña:* ${password}\n\n💻 *Ingresa aquí:* ${domain}`;
+        const text = `✨ *ACCESO MENTE ACTIVA* ✨\n\nAquí tienes tus accesos a la plataforma:\n\n📧 *Usuario:* ${email}\n🔑 *Contraseña:* ${password}\n\n💻 *Ingresa aquí:* ${domain}`;
         
         navigator.clipboard.writeText(text)
             .then(() => {
@@ -216,7 +216,7 @@ const AdminView = () => {
             
             // Auto-copiar credenciales al portapapeles para WhatsApp
             const domain = window.location.origin;
-            const textToCopy = `✨ *ACCESO EDUCREA* ✨\n\nAquí tienes tus accesos a la plataforma:\n\n📧 *Usuario:* ${newUser.email}\n🔑 *Contraseña:* ${generatedPassword}\n\n💻 *Ingresa aquí:* ${domain}`;
+            const textToCopy = `✨ *ACCESO MENTE ACTIVA* ✨\n\nAquí tienes tus accesos a la plataforma:\n\n📧 *Usuario:* ${newUser.email}\n🔑 *Contraseña:* ${generatedPassword}\n\n💻 *Ingresa aquí:* ${domain}`;
             
             try {
                 await navigator.clipboard.writeText(textToCopy);
@@ -745,7 +745,7 @@ const AdminView = () => {
                     </button>
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-black uppercase tracking-wider text-[var(--edu-text-main)]">
-                            EduCrea <span className="text-[var(--edu-logo-blue)]">Admin</span>
+                            Mente Activa <span className="text-[var(--edu-logo-blue)]">Admin</span>
                         </span>
                     </div>
                     <div className="w-10"></div>
@@ -1724,7 +1724,7 @@ const AdminView = () => {
                                                     <label className="text-[9px] font-black uppercase text-blue-500 ml-1 font-black">Link del Botón (URL)</label>
                                                     <input 
                                                         type="text"
-                                                        placeholder="https://educruci.vercel.app/?ref=..."
+                                                        placeholder="https://menteactiva-peru.vercel.app/?ref=..."
                                                         value={globalVars.META_EMAIL_CONFIG?.[globalVars.META_EMAIL_CONFIG?.current || 'welcome']?.buttonUrl || ''}
                                                         onChange={(e) => {
                                                             const current = globalVars.META_EMAIL_CONFIG?.current || 'welcome';

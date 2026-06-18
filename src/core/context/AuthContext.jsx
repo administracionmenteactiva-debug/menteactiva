@@ -46,14 +46,14 @@ export const AuthProvider = ({ children }) => {
         META_ENFOQUES_PRIORITARIOS: [],
         META_HITOS: [],
         
-        // --- PROPIEDADES CORE EDUCREA ---
-        META_PROJECT: 'EduCrea',
+        // --- PROPIEDADES CORE MENTE ACTIVA ---
+        META_PROJECT: 'Mente Activa',
         META_USERS: [],
         META_TUTORIALS: [],
         META_EMAIL_CONFIG: {
             current: 'welcome',
-            welcome: { subject: '🚀 ¡Bienvenido!', body: 'Bienvenido...', footer: 'EduCrea' },
-            trial: { subject: '🎁 Prueba', body: 'Tu prueba...', footer: 'EduCrea' }
+            welcome: { subject: '🚀 ¡Bienvenido!', body: 'Bienvenido...', footer: 'Mente Activa' },
+            trial: { subject: '🎁 Prueba', body: 'Tu prueba...', footer: 'Mente Activa' }
         }
     });
 
