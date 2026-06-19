@@ -35,9 +35,9 @@ export default async function handler(req, res) {
         finalBody = finalBody.replace('{agenda}', formattedDate);
     }
 
-    const BREVO_KEY = process.env.BREVO_KEY;
+    const BREVO_KEY = process.env.BREVO_KEY || process.env.VITE_BREVO_KEY;
     if (!BREVO_KEY) {
-        return res.status(500).json({ error: 'Server misconfiguration: missing BREVO_KEY' });
+        return res.status(500).json({ error: 'Server misconfiguration: missing BREVO_KEY or VITE_BREVO_KEY' });
     }
 
     const payload = {
