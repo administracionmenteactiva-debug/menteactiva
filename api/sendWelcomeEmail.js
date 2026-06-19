@@ -66,7 +66,7 @@ export default async function handler(req, res) {
                     <p style="margin: 0; color: #64748b; font-size: 13px;">Contraseña: <span style="color: #0f172a; font-weight: bold;">${password || '***'}</span></p>
                 </div>
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="https://ment-activa-two.vercel.app/" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Acceder a Mente Activa</a>
+                    <a href="${config.buttonUrl || 'https://menteactiva-peru.vercel.app/'}" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">${config.buttonText || 'Acceder a Mente Activa'}</a>
                 </div>
                 <hr style="margin: 30px 0; border: 0; border-top: 1px solid #e2e8f0;" />
                 <p style="font-size: 10px; color: #94a3b8; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
