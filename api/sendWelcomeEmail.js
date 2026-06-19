@@ -41,8 +41,8 @@ export default async function handler(req, res) {
     }
 
     const payload = {
-        sender: { name: 'Mente Activa', email: 'educrea.administracion@gmail.com' },
-        to: [{ email: userEmail }],
+        sender: { name: 'Mente Activa', email: 'administracionmenteactiva@gmail.com' },
+        to: [{ email: userEmail, name: fullName }],
         subject: config.subject,
         htmlContent: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
