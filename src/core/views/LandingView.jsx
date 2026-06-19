@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import ThemeToggle from '../components/common/ThemeToggle.jsx';
 import { LayoutGrid, Brain, Sparkles, MonitorOff, GraduationCap, Users, MousePointerClick, Settings2, Printer } from 'lucide-react';
-import iconoSopa from '../../../assets/icono_sopa_1.png';
-import iconoCrucigrama from '../../../assets/icono_crucigrama 1.png';
-import iconoSudoku from '../../../assets/ICONO SUDOKU.PNG';
+import iconoSopa from '../../assets/icono_sopa_1.png';
+import iconoCrucigrama from '../../assets/icono_crucigrama-1.png';
+import iconoSudoku from '../../assets/ICONO SUDOKU.PNG';
 
 const LandingView = () => {
     const navigate = useNavigate();
