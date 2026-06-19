@@ -12,9 +12,7 @@ const LandingView = () => {
             {/* Header / Navbar */}
             <header className="bg-[#0f172a] text-white">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="brightness-0 invert">
-                        <MenteActivaLogo className="scale-[0.8] origin-left" />
-                    </div>
+                    <MenteActivaLogo className="scale-[0.8] origin-left" forceDark={true} />
                     
                     <div className="flex items-center gap-6">
                         <ThemeToggle />
