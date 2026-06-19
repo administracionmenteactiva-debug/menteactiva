@@ -2327,7 +2327,7 @@ const AdminView = () => {
                                                                                 <div className="space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
                                             <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Herramientas Permitidas</label>
                                             <div className="flex flex-wrap gap-4 mt-1">
-                                                {['Sesión, Fichas y Soluciones', 'Unidad de Aprendizaje', 'Programación Anual', 'Generador de Crucigramas'].map(tool => (
+                                                {['Crucigramas', 'Sopa de Letras', 'Sudoku'].map(tool => (
                                                     <label key={`modal-${tool}`} className="flex items-center gap-2 cursor-pointer group">
                                                         <input 
                                                             type="checkbox"
