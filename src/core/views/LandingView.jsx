@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { databaseService } from '../services/databaseService.js';
+import { db } from '../services/databaseService.js';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import ThemeToggle from '../components/common/ThemeToggle.jsx';
 import { LayoutGrid, Brain, Sparkles, MonitorOff, GraduationCap, Users, MousePointerClick, Settings2, Printer } from 'lucide-react';
@@ -16,7 +16,7 @@ const LandingView = () => {
 
     useEffect(() => {
         if (ref) {
-            databaseService.getPublicContact(ref)
+            db.getPublicContact(ref)
                 .then(link => {
                     if (link) setReferredWalink(link);
                 })
