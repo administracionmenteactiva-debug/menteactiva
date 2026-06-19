@@ -46,7 +46,7 @@ const LandingView = () => {
                     <div className="flex items-center gap-6">
                         <ThemeToggle />
                         <button 
-                            onClick={handleAccessClick}
+                            onClick={() => navigate('/login' + (ref ? `?ref=${ref}` : ''))}
                             className="bg-transparent text-white border border-white/30 px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:bg-white/10 transition-all"
                         >
                             Iniciar Sesión
