@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import ThemeToggle from '../components/common/ThemeToggle.jsx';
 import { LayoutGrid, Brain, Sparkles, MonitorOff, GraduationCap, Users, MousePointerClick, Settings2, Printer } from 'lucide-react';
+import iconoSopa from '../../../assets/icono_sopa_1.png';
+import iconoCrucigrama from '../../../assets/icono_crucigrama 1.png';
+import iconoSudoku from '../../../assets/ICONO SUDOKU.PNG';
 
 const LandingView = () => {
     const navigate = useNavigate();
@@ -57,36 +60,39 @@ const LandingView = () => {
             </section>
 
             {/* Games Preview Section */}
-            <section className="py-16 px-6 bg-white dark:bg-[var(--edu-bg-card)] border-y border-[#e2e8f0] dark:border-[var(--edu-border)]">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section className="py-12 px-6 bg-white dark:bg-[var(--edu-bg-card)] border-y border-[#e2e8f0] dark:border-[var(--edu-border)]">
+                <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6 justify-center">
                     {/* Sopa de Letras */}
-                    <div className="bg-[#1e3a8a] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col items-center text-center transform hover:scale-105 transition-transform">
-                        <h3 className="bg-[#1e3a8a] w-full pb-4 text-xl font-black tracking-wide border-b border-white/20">Sopa de Letras</h3>
-                        <div className="w-full aspect-square bg-white rounded-2xl mt-6 mb-4 flex items-center justify-center relative overflow-hidden border-4 border-[#1e3a8a]/20">
-                            <LayoutGrid size={64} className="text-[#1e3a8a] opacity-50" />
+                    <div className="flex-1 bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                        <div className="w-16 h-16 flex-shrink-0 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
+                            <img src={iconoSopa} alt="Sopa de Letras" className="w-full h-full object-contain" />
                         </div>
-                        <p className="font-bold text-lg mb-1">Sopa de Letras</p>
-                        <p className="text-sm text-blue-200">Pupiletras temáticos<br/>(ej. Planetas).</p>
+                        <div className="text-left">
+                            <h3 className="text-lg font-black text-[#1e3a8a] dark:text-blue-400 mb-1 leading-tight">Sopa de Letras</h3>
+                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">Pupiletras temáticos (ej. Planetas).</p>
+                        </div>
                     </div>
 
                     {/* Crucigrama */}
-                    <div className="bg-[#ea580c] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col items-center text-center transform hover:scale-105 transition-transform">
-                        <h3 className="bg-[#ea580c] w-full pb-4 text-xl font-black tracking-wide border-b border-white/20">Crucigrama Colorido</h3>
-                        <div className="w-full aspect-square bg-white rounded-2xl mt-6 mb-4 flex items-center justify-center relative overflow-hidden border-4 border-[#ea580c]/20">
-                            <Brain size={64} className="text-[#ea580c] opacity-50" />
+                    <div className="flex-1 bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                        <div className="w-16 h-16 flex-shrink-0 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
+                            <img src={iconoCrucigrama} alt="Crucigrama Colorido" className="w-full h-full object-contain" />
                         </div>
-                        <p className="font-bold text-lg mb-1">Crucigrama Colorido</p>
-                        <p className="text-sm text-orange-200">¡Tú eliges las palabras y el<br/>nivel de dificultad!</p>
+                        <div className="text-left">
+                            <h3 className="text-lg font-black text-[#ea580c] dark:text-orange-400 mb-1 leading-tight">Crucigrama Colorido</h3>
+                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">¡Tú eliges las palabras!</p>
+                        </div>
                     </div>
 
                     {/* Sudoku */}
-                    <div className="bg-[#16a34a] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col items-center text-center transform hover:scale-105 transition-transform">
-                        <h3 className="bg-[#16a34a] w-full pb-4 text-xl font-black tracking-wide border-b border-white/20">Sudoku para Niños</h3>
-                        <div className="w-full aspect-square bg-white rounded-2xl mt-6 mb-4 flex items-center justify-center relative overflow-hidden border-4 border-[#16a34a]/20">
-                            <Sparkles size={64} className="text-[#16a34a] opacity-50" />
+                    <div className="flex-1 bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                        <div className="w-16 h-16 flex-shrink-0 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
+                            <img src={iconoSudoku} alt="Sudoku para Niños" className="w-full h-full object-contain" />
                         </div>
-                        <p className="font-bold text-lg mb-1">Sudoku para Niños</p>
-                        <p className="text-sm text-green-200">¡Tú eliges los números y el<br/>nivel de dificultad!</p>
+                        <div className="text-left">
+                            <h3 className="text-lg font-black text-[#16a34a] dark:text-green-400 mb-1 leading-tight">Sudoku Educativo</h3>
+                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">Niveles personalizables.</p>
+                        </div>
                     </div>
                 </div>
             </section>
