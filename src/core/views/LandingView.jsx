@@ -26,7 +26,11 @@ const LandingView = () => {
 
     const handleAccessClick = () => {
         if (referredWalink) {
-            window.location.href = referredWalink;
+            let finalLink = referredWalink;
+            if (!/^https?:\/\//i.test(finalLink)) {
+                finalLink = 'https://' + finalLink;
+            }
+            window.location.href = finalLink;
         } else {
             navigate('/login' + (ref ? `?ref=${ref}` : ''));
         }
