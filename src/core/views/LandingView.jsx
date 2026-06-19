@@ -39,9 +39,9 @@ const LandingView = () => {
     return (
         <div className="min-h-screen bg-[#f8faff] dark:bg-[var(--edu-bg)] text-[#0f172a] dark:text-[var(--edu-text-main)] transition-colors duration-500 overflow-x-hidden font-sans">
             {/* Header / Navbar */}
-            <header className="bg-[#0f172a] text-white">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <MenteActivaLogo className="scale-[0.8] origin-left" forceDark={true} />
+            <header className="bg-[#0f172a] text-white overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 py-1 flex items-center justify-between -my-2">
+                    <MenteActivaLogo className="scale-[0.75] origin-left" forceDark={true} />
                     
                     <div className="flex items-center gap-6">
                         <ThemeToggle />
