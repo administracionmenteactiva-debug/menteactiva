@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-// Force HMR refresh
-import { saveAs } from 'file-saver';
 import { jsPDF } from 'jspdf';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import html2canvas from 'html2canvas';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ChevronLeft, Download, FileText, Type, Image as ImageIcon, Sparkles, MessageSquare, Play, Trash2, Settings, LogOut, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../services/databaseService';
+import { supabase } from '../lib/supabase';
 import logoFinal from '../../assets/Logo_cruci+pupi-removebg-preview.png';
 import examenIcon from '../../assets/icono_examen.png';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
@@ -17,43 +15,104 @@ import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 const MathText = ({ text }) => {
     if (!text) return null;
     
-    // Divide el texto por delimitadores de $
-    const parts = text.split(/(\$.*?\$)/g);
+    const parts = text.split(/(\$[^\$]+\$)/g);
     
     return (
         <span>
             {parts.map((part, i) => {
                 if (part.startsWith('$') && part.endsWith('$')) {
-                    const formula = part.slice(1, -1);
+                    const math = part.slice(1, -1);
                     try {
-                        return (
-                            <span 
-                                key={i} 
-                                className="inline px-1 py-1"
-                                dangerouslySetInnerHTML={{ 
-                                    __html: katex.renderToString(formula, { throwOnError: false }) 
-                                }} 
-                            />
-                        );
+                        const html = katex.renderToString(math, { displayMode: false, throwOnError: false });
+                        return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />;
                     } catch (e) {
                         return <span key={i}>{part}</span>;
                     }
                 }
-                return <span key={i} className="inline">{part}</span>;
+                return <span key={i}>{part}</span>;
             })}
         </span>
     );
 };
 
+// Parser robusto de preguntas
+const parseQuestions = (text) => {
+    if (!text) return [];
+    
+    const regex = /\[pregunta\]([\s\S]*?)\[respuesta\]([\s\S]*?)\[fin\]/gi;
+    const matches = [...text.matchAll(regex)];
+    const parsed = [];
+    
+    matches.forEach(m => {
+        const questionBlock = m[1].trim();
+        const answerText = m[2].trim();
+        
+        let questionText = questionBlock;
+        let options = [];
+        
+        // Buscar sección [opciones]
+        const optionsMatch = questionBlock.match(/([\s\S]*?)\[opciones\]([\s\S]*)/i);
+        if (optionsMatch) {
+            questionText = optionsMatch[1].trim();
+            const optionsBlock = optionsMatch[2].trim();
+            optionsBlock.split('\n').forEach(line => {
+                const cleanLine = line.trim();
+                if (cleanLine) {
+                    options.push(cleanLine);
+                }
+            });
+        }
+        
+        parsed.push({
+            question: questionText,
+            options: options,
+            answer: answerText
+        });
+    });
+    
+    return parsed;
+};
+
+// Tamaño en bytes
+const calculateSize = (text) => {
+    if (!text) return 0;
+    return new Blob([text]).size;
+};
+
 const EduExamenView = () => {
-    const { theme, user, logout, getPeruDate, updateGlobalVars, globalVars, updateUser } = useAuth();
+    const { user, logout, updateUser, globalVars } = useAuth();
     const navigate = useNavigate();
 
     // Estados de la Sesión de Prueba
-    const [trialStatus, setTrialStatus] = useState('loading'); // 'waiting', 'active', 'expired', 'standard'
-    const [timeLeft, setTimeLeft] = useState(86400); // 24 horas en segundos
+    const [trialStatus, setTrialStatus] = useState('loading'); 
+    const [timeLeft, setTimeLeft] = useState(86400); 
     const [trialStarted, setTrialStarted] = useState(false);
     const [showWelcomeMessage, setShowWelcomeMessage] = useState(user?.plan === 'prueba' && !sessionStorage.getItem('edu_trial_welcomed'));
+
+    // Estados del generador de exámenes
+    const [titulo, setTitulo] = useState('EXAMEN DE PRÁCTICA');
+    const [grado, setGrado] = useState('9 AÑOS');
+    const [activeSlot, setActiveSlot] = useState(1); // 1, 2, 3
+    const [inputData, setInputData] = useState('');
+    const [questions, setQuestions] = useState([]);
+    const [selectedCount, setSelectedCount] = useState(10);
+    const [generatedExam, setGeneratedExam] = useState([]);
+    
+    const [slots, setSlots] = useState({
+        1: { title: 'EXAMEN DE PRÁCTICA', grade: '9 AÑOS', content: '' },
+        2: { title: 'EXAMEN DE PRÁCTICA', grade: '9 AÑOS', content: '' },
+        3: { title: 'EXAMEN DE PRÁCTICA', grade: '9 AÑOS', content: '' }
+    });
+
+    const [promptCopied, setPromptCopied] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [fondo, setFondo] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [loaderText, setLoaderText] = useState('');
+    const [crucigramaListo, setCrucigramaListo] = useState(false);
+    const [vistaActual, setVistaActual] = useState('reto'); // 'reto' o 'solucion'
+
+    const fondoInputRef = useRef(null);
 
     // Obtener información del creador para el WhatsApp
     const creatorInfo = React.useMemo(() => {
@@ -64,27 +123,29 @@ const EduExamenView = () => {
         };
     }, [globalVars.META_USERS, user?.createdBy]);
 
+    // Reloj local de prueba
+    const getPeruDate = React.useCallback(() => {
+        const d = new Date();
+        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+        return new Date(utc + (3600000 * -5));
+    }, []);
+
     useEffect(() => {
         if (!user) return;
         
         if (user.plan === 'prueba') {
             const checkTrial = () => {
-                const nowStr = getPeruDate(); // DD/MM/YYYY
                 const now = new Date();
-                
-                // Buscar datos actualizados del usuario en META_USERS
                 const currentUser = globalVars.META_USERS?.find(u => u.id === user.id) || user;
                 
                 if (!currentUser.trialStartTime) {
-                    // Ver si ya es hora de la cita
                     const sched = new Date(currentUser.scheduledTime);
                     if (now < sched) {
                         setTrialStatus('waiting');
                     } else {
-                        setTrialStatus('ready'); // Ya puede empezar
+                        setTrialStatus('ready');
                     }
                 } else {
-                    // La prueba ya empezó, calcular tiempo restante
                     const start = new Date(currentUser.trialStartTime);
                     const elapsed = Math.floor((now - start) / 1000);
                     const remaining = 86400 - elapsed;
@@ -106,16 +167,86 @@ const EduExamenView = () => {
         } else {
             setTrialStatus('standard');
         }
-    }, [user, globalVars.META_USERS, getPeruDate]);
+    }, [user, globalVars.META_USERS]);
+
+    // Cargar Slots del Usuario
+    useEffect(() => {
+        if (!user) return;
+        
+        const loadSlots = async () => {
+            try {
+                if (user.plan === 'prueba') {
+                    const localData = localStorage.getItem(`menteactiva_exam_slots_${user.id}`);
+                    if (localData) {
+                        const parsed = JSON.parse(localData);
+                        setSlots(parsed);
+                        const active = parsed[1] || { title: 'EXAMEN DE PRÁCTICA', grade: '9 AÑOS', content: '' };
+                        setTitulo(active.title || 'EXAMEN DE PRÁCTICA');
+                        setGrado(active.grade || '9 AÑOS');
+                        setInputData(active.content || '');
+                        setQuestions(parseQuestions(active.content || ''));
+                    }
+                } else {
+                    if (supabase) {
+                        const { data, error } = await supabase
+                            .from('system_settings')
+                            .select('value')
+                            .eq('key', `exam_slots_${user.id}`)
+                            .maybeSingle();
+                        
+                        if (data && data.value && data.value.slots) {
+                            setSlots(data.value.slots);
+                            const active = data.value.slots[1] || { title: 'EXAMEN DE PRÁCTICA', grade: '9 AÑOS', content: '' };
+                            setTitulo(active.title || 'EXAMEN DE PRÁCTICA');
+                            setGrado(active.grade || '9 AÑOS');
+                            setInputData(active.content || '');
+                            setQuestions(parseQuestions(active.content || ''));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error al cargar slots:", err);
+            }
+        };
+        
+        loadSlots();
+    }, [user]);
+
+    // Parseo reactivo en tiempo real al pegar o tipear
+    useEffect(() => {
+        const parsed = parseQuestions(inputData);
+        setQuestions(parsed);
+        if (parsed.length > 0) {
+            setSelectedCount(prev => Math.min(prev, parsed.length));
+        }
+    }, [inputData]);
+
+    // Actualiza el estado de slots al cambiar título, grado o contenido
+    useEffect(() => {
+        setSlots(prev => ({
+            ...prev,
+            [activeSlot]: {
+                title: titulo,
+                grade: grado,
+                content: inputData
+            }
+        }));
+    }, [titulo, grado, inputData, activeSlot]);
+
+    const handleSelectSlot = (slotNum) => {
+        setActiveSlot(slotNum);
+        const targetSlot = slots[slotNum] || { title: 'EXAMEN DE PRÁCTICA', grade: '9 AÑOS', content: '' };
+        setTitulo(targetSlot.title || 'EXAMEN DE PRÁCTICA');
+        setGrado(targetSlot.grade || '9 AÑOS');
+        setInputData(targetSlot.content || '');
+        setQuestions(parseQuestions(targetSlot.content || ''));
+    };
 
     const startTrialSession = async () => {
         try {
             const startTime = await db.startTrial(user.id);
             updateUser({ trialStartTime: startTime });
-            
-            // Log de inicio de prueba
             db.logActivity(user.id, 'START_TRIAL_SESSION');
-            
             setTrialStatus('active');
         } catch (err) {
             alert("Error al iniciar sesión: " + err.message);
@@ -148,107 +279,114 @@ const EduExamenView = () => {
         logout();
         navigate('/login');
     };
-    
-    // Estados del generador
-    const [titulo, setTitulo] = useState('EXAMEN DE PRÁCTICA');
-    const [grado, setGrado] = useState('9 AÑOS');
-    const [size, setSize] = useState(9); // 4, 6, 9
-    const [difficulty, setDifficulty] = useState('medio'); // facil, medio, dificil
-    const [fondo, setFondo] = useState(null);
-    const [fondoCasillasBlanco, setFondoCasillasBlanco] = useState(false);
-    const [coloresActivos, setColoresActivos] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [loaderText, setLoaderText] = useState('');
-    
-    // Estados del motor
-    const [grids, setGrids] = useState(null);
-    const [solutionGrids, setSolutionGrids] = useState(null);
-    const [modo, setModo] = useState('sudoku');
-    const [crucigramaListo, setCrucigramaListo] = useState(false);
-    const [vistaActual, setVistaActual] = useState('reto');
 
-    // Referencias para el fondo
-    const fondoInputRef = useRef(null);
+    const copiarPrompt = () => {
+        const tituloVal = titulo || "Examen de Práctica";
+        const gradoVal = grado || "9 años";
+        
+        const promptText = `Actúa como un extractor y digitalizador de material educativo escolar.
+Tu tarea es leer las imágenes o el texto de las hojas de trabajo físicas provistas y extraer TODAS las preguntas y respuestas.
 
-    // --- MOTOR DE SUDOKU ---
-    
-    const runSudokuMotor = (boardSize, diff) => {
-        const gridData = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
-        let boxR, boxC;
-        if (boardSize === 4) { boxR = 2; boxC = 2; }
-        else if (boardSize === 6) { boxR = 2; boxC = 3; }
-        else { boxR = 3; boxC = 3; }
+Debes transcribir y adaptar cada pregunta del material según las siguientes reglas de formato:
 
-        const isValid = (gridData, r, c, num) => {
-            for (let i = 0; i < boardSize; i++) {
-                if (gridData[r][i] === num) return false;
-                if (gridData[i][c] === num) return false;
-            }
-            let startRow = Math.floor(r / boxR) * boxR;
-            let startCol = Math.floor(c / boxC) * boxC;
-            for (let i = 0; i < boxR; i++) {
-                for (let j = 0; j < boxC; j++) {
-                    if (gridData[startRow + i][startCol + j] === num) return false;
-                }
-            }
-            return true;
-        };
+Estructura para preguntas de opción múltiple:
+[pregunta]
+¿Cuál es la pregunta o reto?
+[opciones]
+A) Primera opción
+B) Segunda opción
+C) Tercera opción
+D) Cuarta opción
+[respuesta]
+Letra o texto de la respuesta correcta (ej. C)
+[fin]
 
-        const solve = (gridData) => {
-            for (let r = 0; r < boardSize; r++) {
-                for (let c = 0; c < boardSize; c++) {
-                    if (gridData[r][c] === 0) {
-                        const nums = Array.from({length: boardSize}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
-                        for (let num of nums) {
-                            if (isValid(gridData, r, c, num)) {
-                                gridData[r][c] = num;
-                                if (solve(gridData)) return true;
-                                gridData[r][c] = 0;
-                            }
-                        }
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
+Estructura para preguntas abiertas o de completar:
+[pregunta]
+¿Cuál es la pregunta o instrucción?
+[respuesta]
+Respuesta esperada o sugerida para el profesor.
+[fin]
 
-        // Generar grilla completa
-        solve(gridData);
-        const solvedGrid = JSON.parse(JSON.stringify(gridData));
+REGLAS ADICIONALES:
+1. No agregues números de lista antes de las etiquetas.
+2. Cada bloque de pregunta debe terminar obligatoriamente con [fin].
+3. Mantén el texto limpio y fácil de leer.
+4. Transcribe exactamente el contenido del material escolar, pero adáptalo a este formato.
+5. El título general sugerido para este examen es "${tituloVal}" para un nivel de "${gradoVal}".`;
 
-        // Determinar agujeros
-        let holesToDig = 0;
-        if (boardSize === 4) holesToDig = diff === 'facil' ? 4 : diff === 'medio' ? 6 : 8;
-        if (boardSize === 6) holesToDig = diff === 'facil' ? 12 : diff === 'medio' ? 16 : 20;
-        if (boardSize === 9) holesToDig = diff === 'facil' ? 30 : diff === 'medio' ? 45 : 55;
+        navigator.clipboard.writeText(promptText).then(() => {
+            setPromptCopied(true);
+            setTimeout(() => setPromptCopied(false), 2000);
+        }).catch(err => {
+            console.error("Error al copiar prompt:", err);
+            alert("No se pudo copiar automáticamente. Por favor copia el prompt manualmente.");
+        });
+    };
 
-        let puzzleGrid = JSON.parse(JSON.stringify(solvedGrid));
-        let cells = [];
-        for (let r=0; r<boardSize; r++) for(let c=0; c<boardSize; c++) cells.push({r, c});
-        cells.sort(() => Math.random() - 0.5);
-
-        for (let i = 0; i < holesToDig && i < cells.length; i++) {
-            puzzleGrid[cells[i].r][cells[i].c] = null;
+    const saveCurrentSlot = async () => {
+        if (!user) return;
+        
+        const bytes = calculateSize(inputData);
+        if (bytes > 30720) { // 30 KB
+            alert(`❌ El contenido de este slot supera el límite de 30 KB (${(bytes/1024).toFixed(1)} KB). Por favor reduce el número de preguntas antes de guardar.`);
+            return;
         }
         
-        return { grid: puzzleGrid, solution: solvedGrid };
+        setIsSaving(true);
+        try {
+            const targetSlots = {
+                ...slots,
+                [activeSlot]: {
+                    title: titulo,
+                    grade: grado,
+                    content: inputData
+                }
+            };
+            
+            if (user.plan === 'prueba') {
+                localStorage.setItem(`menteactiva_exam_slots_${user.id}`, JSON.stringify(targetSlots));
+                alert(`✅ Balotario del Slot ${activeSlot} guardado localmente.`);
+            } else {
+                if (supabase) {
+                    const { error } = await supabase
+                        .from('system_settings')
+                        .upsert({
+                            key: `exam_slots_${user.id}`,
+                            value: { slots: targetSlots },
+                            updated_at: new Date().toISOString()
+                        });
+                        
+                    if (error) throw error;
+                    alert(`✅ Balotario del Slot ${activeSlot} guardado en la nube (Supabase).`);
+                } else {
+                    throw new Error("Supabase no está disponible (modo offline)");
+                }
+            }
+            setSlots(targetSlots);
+            setQuestions(parseQuestions(inputData));
+        } catch (err) {
+            console.error("Error al guardar:", err);
+            alert("❌ Error al guardar el balotario: " + err.message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const generarExamen = () => {
+        if (questions.length === 0) {
+            alert("No hay preguntas disponibles en el balotario activo.");
+            return;
+        }
+        
         setLoading(true);
-        setLoaderText("Diseñando Examen...");
+        setLoaderText("Preparando Examen de Práctica...");
+        
         setTimeout(() => {
-            const numBoards = size === 4 ? 4 : size === 6 ? 2 : 1;
-            const newGrids = [];
-            const newSolutions = [];
-            for (let i = 0; i < numBoards; i++) {
-                const res = runSudokuMotor(size, difficulty);
-                newGrids.push(res.grid);
-                newSolutions.push(res.solution);
-            }
-            setGrids(newGrids);
-            setSolutionGrids(newSolutions);
+            const shuffled = [...questions].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, Math.min(selectedCount, questions.length));
+            
+            setGeneratedExam(selected);
             setCrucigramaListo(true);
             setLoading(false);
             setVistaActual('reto');
@@ -265,7 +403,7 @@ const EduExamenView = () => {
     };
 
     const handleDownloadPDF = async () => {
-        if (!crucigramaListo || !grids || grids.length === 0) return;
+        if (!crucigramaListo || !generatedExam || generatedExam.length === 0) return;
         
         const currentUser = globalVars.META_USERS?.find(u => u.id === user.id) || user;
         if (currentUser?.plan === 'prueba' && currentUser?.downloadsCount >= 2) {
@@ -298,91 +436,128 @@ const EduExamenView = () => {
 
             doc.setFontSize(10);
             doc.setTextColor(0);
-            doc.text(`NOMBRE: __________________________________________________`, 15, 35);
-            doc.text(`EDAD: ${grado || "__________"}`, 140, 35);
+            doc.text(`NOMBRE: __________________________________________________`, 15, 32);
+            doc.text(`EDAD: ${grado || "__________"}`, 140, 32);
+            doc.text(`FECHA: ____/____/________`, 15, 38);
 
             doc.setDrawColor(0);
             doc.setLineWidth(0.8);
             doc.line(15, 42, 195, 42);
 
-            // LAYOUT MULTIPLE
-            let cols = 1, rows = 1;
-            let totalW = 180;
-            let totalH = 170;
+            let currentY = 50;
+            const count = generatedExam.length;
+            const fontSize = count > 10 ? 9 : count > 6 ? 10 : 11;
+            const optFontSize = count > 10 ? 8 : count > 6 ? 9 : 9.5;
+            const openLinesCount = count > 10 ? 1 : count > 6 ? 2 : 3;
+
+            doc.setFont("helvetica", "normal");
             
-            if (size === 4) { cols = 2; rows = 2; }
-            else if (size === 6) { cols = 2; rows = 1; totalH = 85; } // Más corto verticalmente para centrar
-
-            const cellS = Math.min(
-                16,
-                (totalW / cols) / size * 0.85, // 0.85 para dar margen interno
-                (totalH / rows) / size * 0.85
-            );
-
-            const gridW = size * cellS;
-            const gridH = size * cellS;
-            
-            // Distribuir el espacio sobrante
-            const remainingW = 210 - (cols * gridW);
-            const startX = remainingW / (cols + 1);
-            const paddingX = startX;
-
-            const remainingH = (totalH === 85 ? 120 : totalH) - (rows * gridH); // 120 es el espacio disponible en Y
-            const startY = 70 + (remainingH / (rows + 1));
-            const paddingY = remainingH / (rows + 1);
-
-            let boxR, boxC;
-            if (size === 4) { boxR = 2; boxC = 2; }
-            else if (size === 6) { boxR = 2; boxC = 3; }
-            else { boxR = 3; boxC = 3; }
-
-            grids.forEach((currentGrid, idx) => {
-                const cIdx = idx % cols;
-                const rIdx = Math.floor(idx / cols);
+            for (let idx = 0; idx < count; idx++) {
+                const q = generatedExam[idx];
+                const hasOptions = q.options && q.options.length > 0;
                 
-                const offsetX = startX + (cIdx * (gridW + paddingX));
-                const offsetY = startY + (rIdx * (gridH + paddingY));
-
-                // Borde exterior grueso
-                doc.setDrawColor(0);
-                doc.setLineWidth(1.5);
-                doc.rect(offsetX, offsetY, gridW, gridH, 'S');
-
-                // GRILLA VECTORIAL
-                for (let r = 0; r < size; r++) {
-                    for (let c = 0; c < size; c++) {
-                        const x = offsetX + (c * cellS);
-                        const y = offsetY + (r * cellS);
-                        const isGiven = currentGrid[r][c] !== null;
-                        const val = esDocente ? solutionGrids[idx][r][c] : currentGrid[r][c];
-
-                        // Dibujar celda
-                        doc.setDrawColor(0);
-                        doc.setLineWidth(0.2);
-                        doc.rect(x, y, cellS, cellS, 'S');
-
-                        // Bordes gruesos internos
-                        doc.setLineWidth(1.0);
-                        if ((c + 1) % boxC === 0 && c !== size - 1) doc.line(x + cellS, y, x + cellS, y + cellS);
-                        if ((r + 1) % boxR === 0 && r !== size - 1) doc.line(x, y + cellS, x + cellS, y + cellS);
-
-                        // Texto
-                        if (val !== null) {
-                            doc.setFont("helvetica", isGiven ? "bold" : "normal");
-                            doc.setFontSize(cellS * 0.6);
-                            doc.setTextColor(isGiven ? 0 : 50);
-                            doc.text(val.toString(), x + (cellS/2), y + (cellS*0.75), { align: 'center' });
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(fontSize);
+                const qText = `${idx + 1}. ${q.question}`;
+                const qLines = doc.splitTextToSize(qText, 175);
+                const qHeight = qLines.length * (fontSize * 0.4);
+                
+                let neededHeight = qHeight + 4;
+                if (hasOptions) {
+                    neededHeight += Math.ceil(q.options.length / 2) * (optFontSize * 0.4 + 4);
+                } else {
+                    neededHeight += esDocente ? 12 : openLinesCount * 7;
+                }
+                
+                if (currentY + neededHeight > 280) {
+                    doc.addPage();
+                    if (fondo) {
+                        try {
+                            doc.saveGraphicsState();
+                            doc.setGState(new doc.GState({ opacity: 0.18 }));
+                            doc.addImage(fondo, 'JPEG', 15, 42.5, 180, 220, undefined, 'FAST');
+                        } catch (e) {
+                            console.error("Fondo PDF:", e);
+                        } finally {
+                            doc.restoreGraphicsState();
                         }
                     }
+                    currentY = 25;
                 }
-            });
 
-            // Texto inferior
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`REGLA DEL JUEGO: Rellena las casillas vacías con números del 1 al ${size}`, 105, startY + (rows * gridH) + (paddingY * (rows-1)) + 18, { align: 'center' });
-            doc.text("sin que se repitan en ninguna fila, columna o bloque resaltado.", 105, startY + (rows * gridH) + (paddingY * (rows-1)) + 23, { align: 'center' });
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(fontSize);
+                doc.setTextColor(15, 23, 42);
+                doc.text(qLines, 15, currentY);
+                currentY += qHeight + 2;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(optFontSize);
+                
+                if (hasOptions) {
+                    const colX = [20, 105];
+                    
+                    q.options.forEach((opt, oIdx) => {
+                        const optLetter = opt.trim().charAt(0).toUpperCase();
+                        const isCorrect = q.answer.trim().toUpperCase() === optLetter || 
+                                          q.answer.trim().toUpperCase() === opt.trim().toUpperCase() ||
+                                          (q.answer.length === 1 && opt.toUpperCase().startsWith(q.answer.toUpperCase()));
+                                          
+                        const colIdx = oIdx % 2;
+                        const rowIdx = Math.floor(oIdx / 2);
+                        
+                        const x = colX[colIdx];
+                        const y = currentY + (rowIdx * (optFontSize * 0.4 + 4));
+                        
+                        doc.setDrawColor(120);
+                        doc.setLineWidth(0.2);
+                        if (esDocente && isCorrect) {
+                            doc.setDrawColor(16, 185, 129);
+                            doc.setFillColor(209, 250, 229);
+                            doc.rect(x, y - 3, 3.5, 3.5, 'FD');
+                            doc.setFont("helvetica", "bold");
+                            doc.setTextColor(16, 185, 129);
+                            doc.text("✓", x + 0.8, y - 0.5);
+                        } else {
+                            doc.rect(x, y - 3, 3.5, 3.5, 'S');
+                            doc.setTextColor(71, 85, 105);
+                        }
+                        doc.setFont("helvetica", esDocente && isCorrect ? "bold" : "normal");
+                        doc.setFontSize(optFontSize);
+                        doc.text(opt, x + 6, y);
+                    });
+                    
+                    currentY += Math.ceil(q.options.length / 2) * (optFontSize * 0.4 + 4) + 2;
+                } else {
+                    if (esDocente) {
+                        doc.setFillColor(239, 246, 255);
+                        doc.setDrawColor(191, 219, 254);
+                        doc.setLineWidth(0.25);
+                        
+                        const ansText = `Respuesta sugerida: ${q.answer}`;
+                        const ansLines = doc.splitTextToSize(ansText, 165);
+                        const ansHeight = ansLines.length * 4.5 + 4;
+                        
+                        doc.rect(20, currentY, 170, ansHeight, 'FD');
+                        
+                        doc.setFont("helvetica", "bold");
+                        doc.setTextColor(30, 64, 175);
+                        doc.text(ansLines, 23, currentY + 4.5);
+                        
+                        currentY += ansHeight + 3;
+                    } else {
+                        doc.setDrawColor(203, 213, 225);
+                        doc.setLineWidth(0.2);
+                        
+                        for (let l = 0; l < openLinesCount; l++) {
+                            const lineY = currentY + (l * 7) + 5;
+                            doc.line(20, lineY, 190, lineY);
+                        }
+                        currentY += openLinesCount * 7 + 4;
+                    }
+                }
+                currentY += 3;
+            }
 
             doc.setFontSize(8);
             doc.setTextColor(150);
@@ -393,10 +568,11 @@ const EduExamenView = () => {
         };
 
         try {
-            await dibujarPagina(true);
+            await dibujarPagina(false); // Reto
             doc.addPage();
-            await dibujarPagina(false);
-            doc.save(`${titulo.replace(/\s+/g, '_')}_Examen.pdf`);
+            await dibujarPagina(true); // Solución
+            doc.save(`${titulo.replace(/\s+/g, '_')}_Examen_MenteActiva.pdf`);
+            
             if (btn) btn.innerText = "✅ PDF DESCARGADO";
             setTimeout(() => { if (btn) btn.innerText = "DESCARGAR PDF"; }, 3000);
             
@@ -405,7 +581,7 @@ const EduExamenView = () => {
                 updateUser({ downloadsCount: newCount });
             }
             
-            db.logActivity(user.id, 'DOWNLOAD_PDF', { title: titulo, mode: 'examen', size, difficulty });
+            db.logActivity(user.id, 'DOWNLOAD_PDF', { title: titulo, mode: 'examen', questionsCount: generatedExam.length });
         } catch (err) {
             console.error(err);
             alert("Error al generar PDF.");
@@ -419,90 +595,75 @@ const EduExamenView = () => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // --- COMPONENTES DE RENDERIZADO INDEPENDIENTES (UI ATÓMICA) ---
-
-    const RenderHeader = ({ data, esDocente }) => (
-        <header className="w-full">
-            <h1 className="text-center uppercase m-0 text-2xl font-bold text-[#001f5b]">{data.titulo || 'TÍTULO DEL MATERIAL'}</h1>
-            <div className="grid grid-cols-2 gap-2 font-bold mt-4 text-sm uppercase text-black">
-                <div>MATERIA: <span>{data.area || '__________'}</span></div>
-                <div>EDAD: <span>{data.grado || '__________'}</span></div>
-                <div className="col-span-2 mt-1">NOMBRE: __________________________________________________</div>
-            </div>
-            <div className="border-b-[3px] border-black my-2"></div>
-        </header>
-    );
-
-    const RenderGrid = ({ grid, solutionGrid, isDocente, size, fondo, containerSize = 540, coloresActivos }) => {
-        if (!grid || !solutionGrid || grid.length !== size || solutionGrid.length !== size) return <div className="relative w-full flex items-center justify-center flex-shrink-0" style={{ height: `${containerSize}px` }}></div>;
+    const RenderQuestionsList = ({ questionsList, esDocente }) => {
+        if (!questionsList || questionsList.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center h-[350px] text-slate-400 border border-dashed border-slate-300 rounded-3xl p-8 bg-slate-50/50">
+                    <span className="text-4xl mb-4">📝</span>
+                    <p className="font-bold text-sm text-center text-slate-700">No se ha generado ningún examen aún.</p>
+                    <p className="text-xs text-center text-slate-500 mt-1">Configura el balotario a la izquierda y presiona "Generar Examen".</p>
+                </div>
+            );
+        }
         
-        const activeRows = size;
-        const activeCols = size;
-        const dynamicCellS = Math.min(55, Math.floor(containerSize / size)); 
-        
-        let boxR, boxC;
-        if (size === 4) { boxR = 2; boxC = 2; }
-        else if (size === 6) { boxR = 2; boxC = 3; }
-        else { boxR = 3; boxC = 3; }
+        const count = questionsList.length;
+        const itemGap = count > 10 ? 'gap-2' : count > 6 ? 'gap-4' : 'gap-6';
+        const fontSize = count > 10 ? 'text-[12px]' : count > 6 ? 'text-[14px]' : 'text-[15px]';
+        const optFontSize = count > 10 ? 'text-[11px]' : count > 6 ? 'text-[13px]' : 'text-[13.5px]';
+        const openLines = count > 10 ? 1 : count > 6 ? 2 : 3;
 
         return (
-            <div className="relative flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ width: '100%', height: `${containerSize}px` }}>
-                {fondo && (
-                    <div 
-                        className={`absolute inset-0 bg-center bg-no-repeat bg-contain opacity-[0.18] pointer-events-none`}
-                        style={{ backgroundImage: `url(${fondo})` }}
-                    />
-                )}
-                <div className="relative z-10 bg-white shadow-sm border-[4px] border-black p-0" style={{lineHeight: 0}}>
-                    <table className="border-collapse border-spacing-0 bg-transparent border-none m-0 p-0">
-                        <tbody>
-                            {Array.from({ length: activeRows }).map((_, r) => {
-                                return (
-                                    <tr key={r} className="p-0 m-0">
-                                        {Array.from({ length: activeCols }).map((_, c) => {
-                                            const isGiven = grid[r][c] !== null;
-                                            const val = isDocente ? solutionGrid[r][c] : grid[r][c];
-                                            
-                                            const borderRight = (c + 1) % boxC === 0 && c !== activeCols - 1 ? 'border-r-[4px] border-r-black' : 'border-r-[1px] border-r-slate-400';
-                                            const borderBottom = (r + 1) % boxR === 0 && r !== activeRows - 1 ? 'border-b-[4px] border-b-black' : 'border-b-[1px] border-b-slate-400';
-                                            
-                                            
-                                            const colorMap = {
-                                                1: 'bg-red-200',
-                                                2: 'bg-orange-200',
-                                                3: 'bg-yellow-200',
-                                                4: 'bg-lime-300',
-                                                5: 'bg-emerald-300',
-                                                6: 'bg-sky-200',
-                                                7: 'bg-indigo-300',
-                                                8: 'bg-purple-300',
-                                                9: 'bg-pink-300'
-                                            };
-                                            
-                                            const bgColorClass = (coloresActivos && val !== null) ? colorMap[val] : 'bg-transparent';
-                                            
-                                            return (
-                                                <td 
-                                                    key={c}
-                                                    style={{ width: `${dynamicCellS}px`, height: `${dynamicCellS}px` }}
-                                                    className={`text-center relative p-0 m-0 box-border print:exact-colors ${borderRight} ${borderBottom} ${bgColorClass}`}
+            <div className={`flex flex-col ${itemGap} w-full text-black text-left font-sans`}>
+                {questionsList.map((q, idx) => {
+                    const hasOptions = q.options && q.options.length > 0;
+                    
+                    return (
+                        <div key={idx} className="space-y-2 break-inside-avoid">
+                            <div className={`${fontSize} font-bold text-slate-900 flex gap-2`}>
+                                <span>{idx + 1}.</span>
+                                <p className="leading-tight"><MathText text={q.question} /></p>
+                            </div>
+                            
+                            {hasOptions ? (
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 pl-6">
+                                    {q.options.map((opt, oIdx) => {
+                                        const optLetter = opt.trim().charAt(0).toUpperCase();
+                                        const isCorrect = q.answer.trim().toUpperCase() === optLetter || 
+                                                          q.answer.trim().toUpperCase() === opt.trim().toUpperCase() ||
+                                                          (q.answer.length === 1 && opt.toUpperCase().startsWith(q.answer.toUpperCase()));
+                                                          
+                                        return (
+                                            <div 
+                                                key={oIdx} 
+                                                className={`flex items-center gap-2 ${optFontSize} ${esDocente && isCorrect ? 'text-emerald-600 font-bold' : 'text-slate-700'}`}
+                                            >
+                                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0
+                                                    ${esDocente && isCorrect ? 'border-emerald-600 bg-emerald-50 text-emerald-600 font-black' : 'border-slate-400 bg-white'}`}
                                                 >
-                                                    <div className="absolute inset-0 flex items-center justify-center" style={{ fontSize: `${dynamicCellS * 0.6}px` }}>
-                                                        {val !== null && (
-                                                            <span className={`relative z-[5] leading-none pt-[3px] ${isGiven ? 'text-black font-black' : 'text-blue-600 font-bold'}`}>
-                                                                {val}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                                    {esDocente && isCorrect ? '✓' : ''}
+                                                </div>
+                                                <span>{opt}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="pl-6 space-y-1">
+                                    {esDocente ? (
+                                        <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-3 text-xs leading-relaxed">
+                                            <span className="font-bold">Respuesta sugerida: </span>
+                                            <MathText text={q.answer} />
+                                        </div>
+                                    ) : (
+                                        Array.from({ length: openLines }).map((_, lIdx) => (
+                                            <div key={lIdx} className="border-b border-dashed border-slate-300 h-6 w-full"></div>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         );
     };
@@ -511,46 +672,48 @@ const EduExamenView = () => {
         return (
             <div className="shrink-0 relative w-[516px] h-[730px] mb-[40px] print:w-[210mm] print:h-[297mm] print:mb-0">
                 <div 
-                    className="hoja-preview bg-white overflow-hidden flex flex-col justify-between text-black absolute top-0 left-0 print:relative w-[794px] h-[1123px]"
+                    className="hoja-preview bg-white flex flex-col justify-between text-black absolute top-0 left-0 print:relative w-[794px] h-[1123px] overflow-hidden"
                     style={{ 
-                        padding: '35px 45px',
-                        color: '#000000'
+                        padding: '45px 55px',
+                        color: '#000000',
+                        backgroundImage: fondo ? `url(${fondo})` : 'none',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                     }}
                 >
-                    <header>
-                        <h1 className="text-center uppercase m-0 text-5xl text-[#001f5b] font-chewy tracking-wide">
-                            {titulo || "EXAMEN DE PRÁCTICA"}
-                        </h1>
-                        <div className="flex justify-between items-center font-bold mt-6 text-[14px] uppercase text-black">
-                            <div>NOMBRE: __________________________________________________</div>
-                            <div>EDAD: {grado || "__________"}</div>
-                        </div>
-                        <div className="border-b-[3px] border-black my-3"></div>
-                    </header>
+                    {fondo && (
+                        <div 
+                            className="absolute inset-0 bg-white/80 pointer-events-none"
+                        />
+                    )}
+                    
+                    <div className="relative z-10 flex flex-col h-full justify-between">
+                        <div>
+                            <header>
+                                <h1 className="text-center uppercase m-0 text-3xl text-[#001f5b] font-bold tracking-tight">
+                                    {titulo || "EXAMEN DE PRÁCTICA"}
+                                </h1>
+                                <div className="flex justify-between items-center font-bold mt-6 text-[12px] uppercase text-black">
+                                    <div>NOMBRE: __________________________________________________</div>
+                                    <div>EDAD: {grado || "__________"}</div>
+                                </div>
+                                <div className="flex justify-between items-center font-bold mt-2 text-[12px] uppercase text-slate-500">
+                                    <div>FECHA: ____/____/________</div>
+                                    <div>SLOT: {activeSlot}</div>
+                                </div>
+                                <div className="border-b-[2px] border-black my-4"></div>
+                            </header>
 
-                    <div className={`flex-1 w-full grid ${size === 4 ? 'grid-cols-2 grid-rows-2 gap-8' : size === 6 ? 'grid-cols-2 grid-rows-1 gap-12' : 'grid-cols-1'} justify-center items-center py-6 px-4`}>
-                        {grids?.map((g, idx) => (
-                            <div key={idx} className="flex justify-center items-center w-full">
-                                <RenderGrid 
-                                    grid={g} 
-                                    solutionGrid={solutionGrids[idx]} 
-                                    isDocente={esDocente} 
-                                    size={size} 
-                                    fondo={fondo} 
-                                    containerSize={size === 4 ? 260 : size === 6 ? 320 : 540} 
-                                    coloresActivos={coloresActivos}
-                                />
+                            <div className="my-2 overflow-y-auto max-h-[750px] premium-scrollbar pr-2">
+                                <RenderQuestionsList questionsList={generatedExam} esDocente={esDocente} />
                             </div>
-                        ))}
-                    </div>
+                        </div>
 
-                    <div className="w-full flex flex-col mt-auto pb-4">
-                        <div className="text-center text-[10px] text-slate-500 font-bold uppercase mb-4 tracking-widest bg-slate-100 py-3 px-4 rounded-xl border border-slate-200">
-                            INSTRUCCIONES: Responde las preguntas con atención.
-                        </div>
-                        <div className="text-center text-[10px] text-slate-400 mt-4 italic">
-                            Generado con Mente Activa: Aprender en casa es más divertido
-                        </div>
+                        <footer className="border-t border-slate-200 pt-4 flex justify-between items-center text-[10px] text-slate-400 mt-auto">
+                            <span>Mente Activa</span>
+                            <span>Generado con Mente Activa: Aprender en casa es más divertido</span>
+                            <span>Exámenes de Práctica</span>
+                        </footer>
                     </div>
                 </div>
             </div>
@@ -587,7 +750,7 @@ const EduExamenView = () => {
                                 </p>
                             </div>
                             <div className="aspect-video bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-700">
-                                <span className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Tutorial: Cómo usar EduCruci en 2 min</span>
+                                <span className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Tutorial: Cómo usar EduExamen en 2 min</span>
                             </div>
                         </>
                     )}
@@ -613,13 +776,13 @@ const EduExamenView = () => {
                     {trialStatus === 'expired' && (
                         <>
                             <h2 className="text-3xl font-black uppercase tracking-tight text-red-400">Tu tiempo ha terminado</h2>
-                            <p className="text-slate-400 text-lg">¡Esperamos que te haya gustado EduCruci! 🚀</p>
+                            <p className="text-slate-400 text-lg">¡Esperamos que te haya gustado EduExamen! 🚀</p>
                             <div className="bg-emerald-500/10 p-8 rounded-[2rem] border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
                                 <h3 className="text-emerald-400 font-black text-xl mb-4 uppercase tracking-tighter">🔥 Oferta de Lanzamiento 🔥</h3>
                                 <div className="space-y-2 text-left inline-block">
                                     <p className="text-sm font-bold text-slate-200">✅ ACCESO POR UN AÑO</p>
-                                    <p className="text-sm font-bold text-slate-200">✅ CRUCIGRAMAS: ILIMITADOS</p>
-                                    <p className="text-sm font-bold text-slate-200">✅ PUPILETRAS: ILIMITADOS</p>
+                                    <p className="text-sm font-bold text-slate-200">✅ EXÁMENES: ILIMITADOS</p>
+                                    <p className="text-sm font-bold text-slate-200">✅ CRUCIGRAMAS Y PUPILETRAS: ILIMITADOS</p>
                                     <p className="text-sm font-black text-emerald-400 text-lg mt-4 bg-emerald-400/10 py-2 px-4 rounded-xl border border-emerald-400/20">💰 COSTO: S/15 PAGO ÚNICO</p>
                                 </div>
                             </div>
@@ -640,9 +803,9 @@ const EduExamenView = () => {
     const currentUser = globalVars.META_USERS?.find(u => u.id === user.id) || user;
 
     return (
-        <div className="flex flex-col h-screen bg-[#0f172a] text-slate-200 overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-[#0f172a] text-slate-200 overflow-hidden font-sans print:h-auto print:bg-white print:overflow-visible">
             {showWelcomeMessage && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in print:hidden">
                     <div className="bg-[#1e293b] border border-emerald-500/50 p-8 rounded-3xl max-w-md w-full text-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
                         <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="text-emerald-400 text-3xl">📧</span>
@@ -664,9 +827,9 @@ const EduExamenView = () => {
                     </div>
                 </div>
             )}
-            {/* BARRA DE PRUEBA ACTIVA */}
+            
             {user?.plan === 'prueba' && (
-                <div className="bg-purple-600 text-white px-6 py-2 flex items-center justify-between shadow-lg relative z-[100] animate-slide-down">
+                <div className="bg-purple-600 text-white px-6 py-2 flex items-center justify-between shadow-lg relative z-[100] animate-slide-down print:hidden">
                     <div className="flex items-center gap-4">
                         <div className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase">Sesión de Prueba</div>
                         <span className="text-xs font-bold opacity-90">Hola, {user.fullName}</span>
@@ -686,155 +849,201 @@ const EduExamenView = () => {
                 </div>
             )}
             
-            <div className="flex flex-1 overflow-hidden">
-            {/* PANEL DE CONTROL (IZQUIERDA) */}
-            <aside className="w-[350px] bg-[#1e293b] border-r border-slate-800 flex flex-col z-20 shadow-2xl overflow-hidden">
-                {/* CABECERA FIJA (Logo/Título siempre visibles) */}
-                <div className="flex-shrink-0">
-                    <div className="h-[180px] px-6 border-b border-slate-800 flex justify-center items-center bg-[#1e293b]/50 backdrop-blur-md transition-all duration-500 relative">
-                        <div onClick={() => navigate('/')} className="cursor-pointer transition-transform active:scale-95 flex justify-center items-center h-full w-full" title="Ir a Inicio">
-                            <MenteActivaLogo 
-                                smallHeight="140px"
-                                align="center" 
-                                className="w-auto transition-all duration-300" 
-                                style={{ zIndex: 50 }}
-                            />
+            <div className="flex flex-1 overflow-hidden print:overflow-visible">
+                {/* PANEL DE CONTROL (IZQUIERDA) */}
+                <aside className="w-[350px] bg-[#1e293b] border-r border-slate-800 flex flex-col z-20 shadow-2xl overflow-hidden print:hidden">
+                    <div className="flex-shrink-0">
+                        <div className="h-[180px] px-6 border-b border-slate-800 flex justify-center items-center bg-[#1e293b]/50 backdrop-blur-md transition-all duration-500 relative">
+                            <div onClick={() => navigate('/')} className="cursor-pointer transition-transform active:scale-95 flex justify-center items-center h-full w-full" title="Ir a Inicio">
+                                <MenteActivaLogo 
+                                    smallHeight="140px"
+                                    align="center" 
+                                    className="w-auto transition-all duration-300" 
+                                    style={{ zIndex: 50 }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* BLOQUE FIJO DE HERRAMIENTAS */}
+                        <div className="px-6 pt-3 pb-5 border-b border-slate-800 bg-[#1e293b] space-y-3">
+                            <div className="flex justify-end items-center px-1">
+                                <button onClick={handlePanelRedirect} className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-blue-400 transition-colors uppercase tracking-wider">
+                                    <Settings size={14} /> Panel
+                                </button>
+                            </div>
+                            {/* BOTONES DE IA RÁPIDOS Y TUTORIAL */}
+                            <div className="grid grid-cols-3 gap-2 animate-fade-in">
+                                <a 
+                                    href="https://gemini.google.com/" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-blue-500/20"
+                                >
+                                    <Sparkles size={12} /> Gemini
+                                </a>
+                                <a 
+                                    href="https://chatgpt.com/" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
+                                >
+                                    <MessageSquare size={12} /> ChatGPT
+                                </a>
+                                <button 
+                                    onClick={() => navigate('/tutorial')}
+                                    className="flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-red-600 to-rose-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-red-500/20 group relative overflow-hidden"
+                                >
+                                    <Play size={12} fill="white" className="relative z-10" /> <span className="relative z-10">Tutorial</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    {/* BLOQUE FIJO DE HERRAMIENTAS */}
-                    <div className="px-6 pt-3 pb-5 border-b border-slate-800 bg-[#1e293b] space-y-3">
-                        <div className="flex justify-end items-center px-1">
-                            <button onClick={handlePanelRedirect} className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-blue-400 transition-colors uppercase tracking-wider">
-                                <Settings size={14} /> Panel
+                    {/* CUERPO DEL PANEL CON SCROLL INDEPENDIENTE */}
+                    <div className="flex-1 overflow-y-auto premium-scrollbar p-6 space-y-6">
+                        {/* 1. IDENTIFICACIÓN */}
+                        <div className="space-y-3">
+                            <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">1. Identificación del Material</label>
+                            <div className="space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Título del Examen</label>
+                                <input 
+                                    id="INPUT_EXAM_TITLE" 
+                                    value={titulo} 
+                                    onChange={(e) => setTitulo(e.target.value)} 
+                                    className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
+                                    placeholder="Ej: EXAMEN DE MATEMÁTICAS" 
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Edad o Grado del niño(a)</label>
+                                <input 
+                                    id="INPUT_EXAM_GRADE" 
+                                    value={grado} 
+                                    onChange={(e) => setGrado(e.target.value)} 
+                                    className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
+                                    placeholder="Ej: 9 años" 
+                                />
+                            </div>
+                        </div>
+
+                        {/* 2. EL ENSAMBLADOR DE INSTRUCCIONES */}
+                        <div className="space-y-3">
+                            <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">2. El Ensamblador de Instrucciones</label>
+                            
+                            <div className="space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Slot de Almacenamiento (Max 3)</label>
+                                <div className="grid grid-cols-3 gap-1.5 bg-[#0f172a] p-1 rounded-xl border border-slate-700">
+                                    {[1, 2, 3].map(num => (
+                                        <button
+                                            key={num}
+                                            type="button"
+                                            onClick={() => handleSelectSlot(num)}
+                                            className={`py-1.5 text-[10px] font-black rounded-lg transition-all ${activeSlot === num ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                                        >
+                                            Slot {num}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button 
+                                type="button"
+                                onClick={copiarPrompt} 
+                                className={`w-full py-3.5 ${promptCopied ? 'bg-emerald-600' : 'bg-orange-500 hover:bg-orange-600'} text-white rounded-xl font-black uppercase text-[10px] flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all duration-300`}
+                            >
+                                <Sparkles size={13} /> {promptCopied ? '✅ ¡PROMPT LISTO!' : 'Copiar Prompt para la IA'}
+                            </button>
+
+                            <div className="space-y-1">
+                                <div className="flex justify-between items-center ml-1">
+                                    <label className="text-[9px] uppercase font-bold text-slate-600">Pegar respuesta de la IA</label>
+                                    <span className={`text-[9px] font-bold ${calculateSize(inputData) > 30000 ? 'text-red-500' : 'text-slate-500'}`}>
+                                        {(calculateSize(inputData) / 1024).toFixed(1)} KB / 30 KB
+                                    </span>
+                                </div>
+                                <textarea 
+                                    id="INPUT_PASTE_ZONE"
+                                    value={inputData} 
+                                    onChange={(e) => setInputData(e.target.value)} 
+                                    className="w-full h-32 bg-[#0f172a] border border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-blue-500/50 transition-all resize-none premium-scrollbar" 
+                                    placeholder="Pegue aquí el texto estructurado que le entregó la IA..." 
+                                />
+                            </div>
+
+                            <button 
+                                type="button"
+                                onClick={saveCurrentSlot}
+                                disabled={isSaving}
+                                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold uppercase text-[9px] flex items-center justify-center gap-1.5 transition-all"
+                            >
+                                💾 {isSaving ? 'Guardando...' : 'Guardar Balotario'}
                             </button>
                         </div>
-                        {/* BOTÓN TUTORIAL */}
-                        <div className="grid grid-cols-1 animate-fade-in">
-                            <button 
-                                onClick={() => navigate('/tutorial')}
-                                className="flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red-600 to-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-red-500/20 group relative overflow-hidden"
-                            >
-                                <Play size={14} fill="white" className="relative z-10" /> <span className="relative z-10">Ver Video Tutorial</span>
+
+                        {/* 3. CONFIGURACIÓN DEL EXAMEN */}
+                        <div className="space-y-3 pt-2">
+                            <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">3. Configuración del Examen</label>
+                            
+                            <div className="bg-[#0f172a]/50 border border-slate-800 rounded-2xl p-4 space-y-3">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-400">Preguntas disponibles:</span>
+                                    <span className="font-black text-white">{questions.length}</span>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[9px] uppercase font-bold text-slate-600">Preguntas a incluir</label>
+                                    <input 
+                                        type="number"
+                                        min="1"
+                                        max={questions.length || 1}
+                                        value={selectedCount}
+                                        onChange={(e) => setSelectedCount(Math.max(1, Math.min(questions.length, parseInt(e.target.value) || 1)))}
+                                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50 font-bold"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* BOTONES DE UTILIDAD */}
+                        <div className="mt-8 pt-6 border-t border-slate-800/50 flex justify-end items-center px-1 pb-10">
+                            <button onClick={handleLogout} className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-red-400 transition-colors uppercase tracking-wider">
+                                <LogOut size={16} /> Salir
                             </button>
                         </div>
                     </div>
-                </div>
+                </aside>
 
-                {/* CUERPO DEL PANEL CON SCROLL INDEPENDIENTE */}
-                <div className="flex-1 overflow-y-auto premium-scrollbar p-6 space-y-6">
-
-                    <div className="space-y-3">
-                        <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">1. Identificación del Material</label>
-                        <div className="space-y-1">
-                            <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Título</label>
-                            <input id="INPUT_EXAM_TITLE" value={titulo} onChange={(e) => setTitulo(e.target.value)} className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" placeholder="Ej: EXAMEN DE PRÁCTICA" />
+                {/* AREA DE PREVISUALIZACIÓN (CENTRO) */}
+                <main className="flex-1 bg-[#0f172a] p-12 overflow-y-auto premium-scrollbar flex flex-col items-center gap-6 print:p-0 print:m-0 print:bg-white print:overflow-visible">
+                    {loading && (
+                        <div className="fixed inset-0 bg-[#001f5b]/90 z-50 flex flex-col items-center justify-center gap-4 text-center">
+                            <div className="w-12 h-12 border-[5px] border-white/30 border-t-[#00adc1] rounded-full animate-spin"></div>
+                            <h2 className="text-xl font-black text-white">{loaderText}</h2>
+                            <p className="text-sm text-white/70">Armando tu material personalizado</p>
                         </div>
-                        <div className="space-y-1">
-                            <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Edad del niño(a)</label>
-                            <input id="INPUT_EXAM_GRADE" value={grado} onChange={(e) => setGrado(e.target.value)} className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" placeholder="Ej: 9 años" />
-                        </div>
-                    </div>
+                    )}
 
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">2. Tamaño de Cuadrícula</label>
-                        <div className="grid grid-cols-3 gap-2 bg-[#0f172a] p-1 rounded-xl border border-slate-700">
-                            <button 
-                                type="button"
-                                onClick={() => setSize(4)}
-                                className={`py-2 text-[9px] font-black uppercase rounded-lg transition-all ${size === 4 ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                4x4
-                            </button>
-                            <button 
-                                type="button"
-                                onClick={() => setSize(6)}
-                                className={`py-2 text-[9px] font-black uppercase rounded-lg transition-all ${size === 6 ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                6x6
-                            </button>
-                            <button 
-                                type="button"
-                                onClick={() => setSize(9)}
-                                className={`py-2 text-[9px] font-black uppercase rounded-lg transition-all ${size === 9 ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                9x9
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">3. Nivel de Dificultad</label>
-                        <div className="grid grid-cols-3 gap-2 bg-[#0f172a] p-1 rounded-xl border border-slate-700">
-                            <button 
-                                type="button"
-                                onClick={() => setDifficulty('facil')}
-                                className={`py-2 text-[9px] font-black uppercase rounded-lg transition-all ${difficulty === 'facil' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                Fácil
-                            </button>
-                            <button 
-                                type="button"
-                                onClick={() => setDifficulty('medio')}
-                                className={`py-2 text-[9px] font-black uppercase rounded-lg transition-all ${difficulty === 'medio' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                Medio
-                            </button>
-                            <button 
-                                type="button"
-                                onClick={() => setDifficulty('dificil')}
-                                className={`py-2 text-[9px] font-black uppercase rounded-lg transition-all ${difficulty === 'dificil' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                Difícil
-                            </button>
-                        </div>
-                    </div>
-
-
-
-                    {/* BOTONES DE UTILIDAD (PEQUEÑOS) */}
-                    <div className="mt-8 pt-6 border-t border-slate-800/50 flex justify-end items-center px-1 pb-10">
-                        <button onClick={handleLogout} className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-red-400 transition-colors uppercase tracking-wider">
-                            <LogOut size={16} /> Salir
+                    <div className="flex gap-2 mb-2 bg-[#1e293b] p-1.5 rounded-2xl shadow-xl border border-slate-800 shrink-0 print:hidden">
+                        <button 
+                            onClick={() => setVistaActual('solucion')}
+                            className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-300 ${vistaActual === 'solucion' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                        >
+                            📄 Hoja de Respuestas (Solución)
+                        </button>
+                        <button 
+                            onClick={() => setVistaActual('reto')}
+                            className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-300 ${vistaActual === 'reto' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                        >
+                            📝 Hoja de Examen (Reto)
                         </button>
                     </div>
-                </div>
-            </aside>
 
-            {/* AREA DE PREVISUALIZACIÓN (CENTRO) */}
-            <main className="flex-1 bg-[#0f172a] p-12 overflow-y-auto premium-scrollbar flex flex-col items-center gap-6">
-                {loading && (
-                    <div className="fixed inset-0 bg-[#001f5b]/90 z-50 flex flex-col items-center justify-center gap-4 text-center">
-                        <div className="w-12 h-12 border-[5px] border-white/30 border-t-[#00adc1] rounded-full animate-spin"></div>
-                        <h2 className="text-xl font-black text-white">{loaderText}</h2>
-                        <p className="text-sm text-white/70">Diseñando tu material de alta calidad</p>
-                    </div>
-                )}
-
-                <div className="flex gap-2 mb-2 bg-[#1e293b] p-1.5 rounded-2xl shadow-xl border border-slate-800 shrink-0">
-                    <button 
-                        onClick={() => setVistaActual('solucion')}
-                        className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-300 ${vistaActual === 'solucion' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-                    >
-                        📄 Hoja de Respuestas (Solución)
-                    </button>
-                    <button 
-                        onClick={() => setVistaActual('reto')}
-                        className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-300 ${vistaActual === 'reto' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-                    >
-                        📝 Hoja de Juego (Reto)
-                    </button>
-                </div>
-
-                {renderSheet(vistaActual === 'solucion')}
-
-
+                    {renderSheet(vistaActual === 'solucion')}
                 </main>
 
                 {/* PANEL DE ACCIONES (DERECHA) */}
                 <aside className="w-[320px] flex-shrink-0 bg-[#1e293b] border-l border-slate-800 flex flex-col z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.3)] overflow-y-auto print:hidden">
                     <div className="p-6 pt-10 space-y-8">
-                        {/* TARJETA IDENTIFICADORA */}
                         <div className="relative overflow-hidden bg-[#0f172a] border border-slate-700/50 rounded-[2rem] p-6 shadow-xl flex flex-col items-center text-center mx-2">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500 opacity-[0.05] rounded-full blur-3xl -mr-10 -mt-10"></div>
                             <div className="relative z-10 flex flex-col items-center">
@@ -850,7 +1059,14 @@ const EduExamenView = () => {
                         <div>
                             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-800 pb-2">Acciones Finales</h3>
                             <div className="space-y-3">
-                                <button id="BTN_EXAM_GENERATE" onClick={() => generarExamen()} className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase text-[10px] flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"><Type size={14} /> Generar Examen</button>
+                                <button 
+                                    id="BTN_EXAM_GENERATE" 
+                                    onClick={generarExamen} 
+                                    disabled={questions.length === 0}
+                                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-2xl font-black uppercase text-[10px] flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
+                                >
+                                    <Type size={14} /> Generar Examen
+                                </button>
                                 <button 
                                     id="BTN_PRINT_NATIVE"
                                     onClick={() => window.print()} 
@@ -863,7 +1079,7 @@ const EduExamenView = () => {
                                     id="BTN_EXAM_DOWNLOAD_PDF"
                                     onClick={handleDownloadPDF} 
                                     disabled={!crucigramaListo || (currentUser?.plan === 'prueba' && currentUser?.downloadsCount >= 2)} 
-                                    className="hidden w-full py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-2xl font-black uppercase text-[10px] items-center justify-center gap-2 shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex w-full py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-2xl font-black uppercase text-[10px] items-center justify-center gap-2 shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Download size={14} /> Descargar PDF
                                 </button>
@@ -878,23 +1094,6 @@ const EduExamenView = () => {
                                     <ImageIcon size={14} /> {fondo ? "✅ Imagen Cargada" : "📁 Seleccionar Imagen"}
                                 </button>
                                 <input type="file" ref={fondoInputRef} onChange={handleFondoChange} className="hidden" accept="image/*" />
-                                
-                                <label className="flex items-center gap-2 pt-3 cursor-pointer group w-max">
-                                    <div className="relative flex items-center justify-center w-4 h-4">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={coloresActivos}
-                                            onChange={(e) => setColoresActivos(e.target.checked)}
-                                            className="peer appearance-none w-4 h-4 border-2 border-slate-600 rounded-sm checked:bg-blue-500 checked:border-blue-500 transition-all cursor-pointer"
-                                        />
-                                        <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-slate-300 transition-colors uppercase tracking-wider">
-                                        COLOREAR NÚMEROS (CELDAS)
-                                    </span>
-                                </label>
                             </div>
                         </div>
                     </div>
