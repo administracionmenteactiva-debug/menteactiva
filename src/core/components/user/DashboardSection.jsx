@@ -70,6 +70,7 @@ const DashboardSection = () => {
     const cards = [
         {
             title: "CRUCIGRAMAS",
+            dbName: "Crucigramas",
             icon: <img src={crucigramaIcon} alt="Crucigramas" className="w-20 h-20 object-contain drop-shadow-lg" />,
             color: "#f97316",
             bg: "bg-orange-500",
@@ -78,6 +79,7 @@ const DashboardSection = () => {
         },
         {
             title: "SOPA DE LETRAS",
+            dbName: "Sopa de Letras",
             icon: <img src={sopaIcon} alt="Sopa de Letras" className="w-20 h-20 object-contain drop-shadow-lg" />,
             color: "#3b82f6",
             bg: "bg-blue-500",
@@ -86,6 +88,7 @@ const DashboardSection = () => {
         },
         {
             title: "SUDOKU",
+            dbName: "Sudoku",
             icon: <img src={sudokuIcon} alt="Sudoku" className="w-20 h-20 object-contain drop-shadow-lg" />,
             color: "#8b5cf6", // Purple color to distinguish it
             bg: "bg-violet-500",
@@ -144,14 +147,20 @@ const DashboardSection = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {cards.map((card, idx) => {
-                        const blocked = isExpired && !isAdmin;
+                        const hasAccess = isAdmin || (user?.allowedTools && user.allowedTools.includes(card.dbName));
+                        const isBlockedDueToExpired = isExpired && !isAdmin;
+                        const blocked = isBlockedDueToExpired || !hasAccess;
                         
                         return (
                         <div 
                             key={idx}
                             onClick={() => {
                                 if (blocked) {
-                                    alert("⏳ Tu suscripción ha vencido. Por favor contacta a soporte para renovar y recuperar el acceso.");
+                                    if (isBlockedDueToExpired) {
+                                        alert("⏳ Tu suscripción ha vencido. Por favor contacta a soporte para renovar y recuperar el acceso.");
+                                    } else {
+                                        alert("🔒 No tienes acceso a esta herramienta. Por favor contacta a soporte para adquirirla.");
+                                    }
                                     window.open(wspLink, '_blank');
                                 } else {
                                     navigate(card.path);
