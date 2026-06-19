@@ -88,50 +88,49 @@ const LandingView = () => {
             {/* Benefits Section */}
             <section className="py-24 px-6 bg-[#fffbeb] dark:bg-[var(--edu-bg-card)] border-t border-[#fde68a] dark:border-[var(--edu-border)]">
                 <div className="max-w-6xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-black mb-4 text-center text-[#0f172a] dark:text-white">Beneficios</h2>
-                    <p className="text-center text-[#64748b] dark:text-[var(--edu-text-muted)] max-w-lg mx-auto mb-16 text-sm font-medium">
-                        Por qué los padres y educadores prefieren la fórmula de desconexión de Mente Activa.
-                    </p>
+                    <h2 className="text-3xl md:text-4xl font-black mb-16 text-center text-[#0f172a] dark:text-white">
+                        Por qué los padres prefieren nuestra fórmula de desconexión.
+                    </h2>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                         {/* Benefit 1 */}
-                        <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center text-center">
-                            <span className="px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-6 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400">
+                        <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-[2rem] pt-6 pb-6 px-5 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center text-center">
+                            <span className="px-3 py-1 rounded-full text-[11px] font-black tracking-widest uppercase mb-4 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400">
                                 Menos Pantallas
                             </span>
-                            <div className="w-32 h-32 rounded-2xl bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/50 dark:border-rose-900/20 p-4 flex items-center justify-center mb-6">
+                            <div className="w-[140px] h-[140px] rounded-2xl bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/50 dark:border-rose-900/20 p-2 flex items-center justify-center mb-4">
                                 <img src="/icon_ben1.png" alt="Desconexión digital" className="w-full h-full object-contain" />
                             </div>
-                            <h3 className="text-lg font-black mb-3 text-[#0f172a] dark:text-white">Desconexión digital</h3>
-                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-xs leading-relaxed">
+                            <h3 className="text-xl font-black mb-2 text-[#0f172a] dark:text-white">Desconexión digital</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
                                 Aleja a tus hijos de las pantallas con actividades tangibles que estimulen su cerebro.
                             </p>
                         </div>
 
                         {/* Benefit 2 */}
-                        <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center text-center">
-                            <span className="px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-6 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                        <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-[2rem] pt-6 pb-6 px-5 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center text-center">
+                            <span className="px-3 py-1 rounded-full text-[11px] font-black tracking-widest uppercase mb-4 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                                 Aprendizaje Eficaz
                             </span>
-                            <div className="w-32 h-32 rounded-2xl bg-blue-50/50 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/20 p-4 flex items-center justify-center mb-6">
+                            <div className="w-[140px] h-[140px] rounded-2xl bg-blue-50/50 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/20 p-2 flex items-center justify-center mb-4">
                                 <img src="/icon_ben2.png" alt="Refuerzo escolar divertido" className="w-full h-full object-contain" />
                             </div>
-                            <h3 className="text-lg font-black mb-3 text-[#0f172a] dark:text-white">Refuerzo escolar divertido</h3>
-                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-xs leading-relaxed">
+                            <h3 className="text-xl font-black mb-2 text-[#0f172a] dark:text-white">Refuerzo escolar divertido</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
                                 Ideal para repasar vocabulario, ortografía y matemáticas sin que se sientan presionados.
                             </p>
                         </div>
 
                         {/* Benefit 3 */}
-                        <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center text-center">
-                            <span className="px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-6 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                        <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-[2rem] pt-6 pb-6 px-5 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center text-center">
+                            <span className="px-3 py-1 rounded-full text-[11px] font-black tracking-widest uppercase mb-4 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
                                 Conexión Real
                             </span>
-                            <div className="w-32 h-32 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100/50 dark:border-emerald-900/20 p-4 flex items-center justify-center mb-6">
+                            <div className="w-[140px] h-[140px] rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100/50 dark:border-emerald-900/20 p-2 flex items-center justify-center mb-4">
                                 <img src="/icon_ben3.png" alt="Tiempo en familia" className="w-full h-full object-contain" />
                             </div>
-                            <h3 className="text-lg font-black mb-3 text-[#0f172a] dark:text-white">Tiempo en familia</h3>
-                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-xs leading-relaxed">
+                            <h3 className="text-xl font-black mb-2 text-[#0f172a] dark:text-white">Tiempo en familia</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
                                 Crea momentos únicos guiándolos y celebrando sus logros.
                             </p>
                         </div>
