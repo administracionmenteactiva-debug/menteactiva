@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /user
+Disallow: /crucigramas
+Disallow: /sopadeletras
+Disallow: /sudoku
+Disallow: /tutorial
+
+Sitemap: https://menteactiva-peru.vercel.app/sitemap.xml
