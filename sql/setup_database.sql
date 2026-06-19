@@ -154,6 +154,7 @@ BEGIN
         age = COALESCE((p_update_data->>'age')::INTEGER, age),
         walink = COALESCE(p_update_data->>'walink', walink),
         whatsapp_ventas = COALESCE(p_update_data->>'whatsapp_ventas', whatsapp_ventas),
+        password = COALESCE(p_update_data->>'password', password),
         updated_at = NOW()
     WHERE id = p_user_id;
 END;
