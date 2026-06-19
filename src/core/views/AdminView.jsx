@@ -148,7 +148,7 @@ const AdminView = () => {
 
     const [newUser, setNewUser] = React.useState({
         email: '',
-        fullName: 'Docente',
+        fullName: 'Usuario',
         phoneNumber: '',
         role: 'user',
         plan: 'prueba',
@@ -1078,7 +1078,7 @@ const AdminView = () => {
                                             type="text" 
                                             value={newUser.fullName}
                                             onChange={(e) => setNewUser({...newUser, fullName: e.target.value})}
-                                            placeholder="Nombre del Docente" 
+                                            placeholder="Nombre del Usuario" 
                                             className="w-full px-4 py-3 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-xl text-xs outline-none" 
                                         />
                                     </div>
