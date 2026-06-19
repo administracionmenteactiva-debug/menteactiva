@@ -80,7 +80,7 @@ const LandingView = () => {
                         </div>
                         <div className="text-left">
                             <h3 className="text-lg font-black text-[#ea580c] dark:text-orange-400 mb-1 leading-tight">Crucigrama Colorido</h3>
-                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">¡Tú eliges las palabras!</p>
+                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">¡Tú eliges los temas!</p>
                         </div>
                     </div>
 
