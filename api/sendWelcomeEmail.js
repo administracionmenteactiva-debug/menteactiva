@@ -46,8 +46,15 @@ export default async function handler(req, res) {
         subject: config.subject,
         htmlContent: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://menteactiva-peru.vercel.app/logo_mail.png" alt="Mente Activa Logo" width="280" style="display: block; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <img src="https://menteactiva-peru.vercel.app/logo_mail.png" alt="Mente Activa Logo" width="120" style="display: block; margin: 0 auto 10px auto; border: 0; outline: none; text-decoration: none;" />
+                    <div style="margin-top: 5px; font-family: system-ui, -apple-system, sans-serif; line-height: 1;">
+                        <span style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #1e293b; margin-right: 4px;">MENTE</span>
+                        <span style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #d97706;">ACTIVA</span>
+                    </div>
+                    <div style="font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #64748b; margin-top: 6px; font-family: system-ui, -apple-system, sans-serif;">
+                        Conéctalos con su mente.
+                    </div>
                 </div>
                 <h1 style="color: #3b82f6; text-align: center;">${finalGreeting}</h1>
                 <p style="font-size: 16px; color: #475569; line-height: 1.6; text-align: center; white-space: pre-line;">
