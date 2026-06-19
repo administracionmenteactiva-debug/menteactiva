@@ -61,10 +61,10 @@ const LandingView = () => {
                     {/* Left: Text */}
                     <div className="order-2 md:order-1 text-center md:text-left">
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-6" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                            Crea <span className="text-[#c28d22]">juegos mentales personalizados</span> para tus hijos en minutos.
+                            ¡Une sus <span className="text-[#c28d22]">pasatiempos</span> con lo aprendido en el <span className="text-[#c28d22]">cole</span>!
                         </h1>
                         <p className="text-lg md:text-xl text-[#334155] dark:text-[var(--edu-text-muted)] mb-10 leading-relaxed font-medium">
-                            Crucigramas, sopas de letras y sudokus listos para imprimir. La forma más divertida de aprender en casa.
+                            La fórmula perfecta para apagar las pantallas, activar su mente y eliminar las barreras del aprendizaje en casa.
                         </p>
                         <button 
                             onClick={handleAccessClick}
@@ -81,6 +81,48 @@ const LandingView = () => {
                             alt="Adolescente concentrado resolviendo juegos mentales" 
                             className="w-full max-w-md md:max-w-lg object-contain animate-fade-in drop-shadow-2xl"
                         />
+                    </div>
+                </div>
+            </section>
+
+            {/* Benefits Section */}
+            <section className="py-24 px-6 bg-[#fffbeb] dark:bg-[var(--edu-bg-card)] border-t border-[#fde68a] dark:border-[var(--edu-border)]">
+                <div className="max-w-5xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-black mb-16 text-center text-[#0f172a] dark:text-white">Beneficios</h2>
+                    
+                    <div className="grid md:grid-cols-3 gap-12 text-center">
+                        {/* Benefit 1 */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-32 h-32 mb-6">
+                                <img src="/icon_ben1.png" alt="Desconexión digital" className="w-full h-full object-contain" />
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Desconexión digital:</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
+                                Aleja a tus hijos de las pantallas con actividades tangibles que estimulen su cerebro.
+                            </p>
+                        </div>
+
+                        {/* Benefit 2 */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-32 h-32 mb-6">
+                                <img src="/icon_ben2.png" alt="Refuerzo escolar divertido" className="w-full h-full object-contain" />
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Refuerzo escolar divertido:</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
+                                Ideal para repasar vocabulario, ortografía y matemáticas sin que se sientan presionados.
+                            </p>
+                        </div>
+
+                        {/* Benefit 3 */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-32 h-32 mb-6">
+                                <img src="/icon_ben3.png" alt="Tiempo en familia" className="w-full h-full object-contain" />
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Tiempo en familia:</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
+                                Crea momentos únicos guiándolos y celebrando sus logros.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -161,53 +203,11 @@ const LandingView = () => {
                         <div className="flex-1 flex flex-col items-center relative z-10 mt-12 md:mt-0">
                             <div className="w-32 h-32 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-[6px] border-[#81aebf] shadow-lg flex items-center justify-center mb-6 relative overflow-hidden p-3">
                                 <div className="absolute top-2 left-2 w-8 h-8 bg-[#375e8f] text-white rounded-full flex items-center justify-center font-black text-sm z-10 shadow-md border-2 border-white">3</div>
-                                <img src="/icon_step3.png" alt="¡Imprime y juega!" className="w-full h-full object-contain" />
+                                <img src="/icon_step3.png" alt="¡Aprende jugando!" className="w-full h-full object-contain" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">3. ¡Imprime y juega!</h3>
+                            <h3 className="text-xl font-bold mb-2">3. ¡Aprende jugando!</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
                                 (Descarga el PDF al instante y dale vida al aprendizaje en casa).
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Benefits Section */}
-            <section className="py-24 px-6 bg-[#fffbeb] dark:bg-[var(--edu-bg-card)] border-t border-[#fde68a] dark:border-[var(--edu-border)]">
-                <div className="max-w-5xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-black mb-16 text-center text-[#0f172a] dark:text-white">Beneficios</h2>
-                    
-                    <div className="grid md:grid-cols-3 gap-12 text-center">
-                        {/* Benefit 1 */}
-                        <div className="flex flex-col items-center">
-                            <div className="w-32 h-32 mb-6">
-                                <img src="/icon_ben1.png" alt="Desconexión digital" className="w-full h-full object-contain" />
-                            </div>
-                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Desconexión digital:</h3>
-                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
-                                Aleja a tus hijos de las pantallas con actividades tangibles que estimulen su cerebro.
-                            </p>
-                        </div>
-
-                        {/* Benefit 2 */}
-                        <div className="flex flex-col items-center">
-                            <div className="w-32 h-32 mb-6">
-                                <img src="/icon_ben2.png" alt="Refuerzo escolar divertido" className="w-full h-full object-contain" />
-                            </div>
-                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Refuerzo escolar divertido:</h3>
-                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
-                                Ideal para repasar vocabulario, ortografía y matemáticas sin que se sientan presionados.
-                            </p>
-                        </div>
-
-                        {/* Benefit 3 */}
-                        <div className="flex flex-col items-center">
-                            <div className="w-32 h-32 mb-6">
-                                <img src="/icon_ben3.png" alt="Tiempo en familia" className="w-full h-full object-contain" />
-                            </div>
-                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Tiempo en familia:</h3>
-                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
-                                Crea momentos únicos guiándolos y celebrando sus logros.
                             </p>
                         </div>
                     </div>

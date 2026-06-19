@@ -5,6 +5,7 @@ import { Home, Sparkles, BookOpen, Calendar, Lightbulb, ArrowRight, Zap, ShieldC
 import crucigramaIcon from '../../../assets/icono_crucigrama-1.png';
 import sopaIcon from '../../../assets/icono_sopa_1.png';
 import sudokuIcon from '../../../assets/ICONO SUDOKU.PNG';
+import examenIcon from '../../../assets/icono_examen.png';
 
 const DashboardSection = () => {
     const { user } = useAuth();
@@ -94,6 +95,15 @@ const DashboardSection = () => {
             bg: "bg-violet-500",
             hover: "hover:shadow-violet-500/20 hover:border-violet-500/50",
             path: "/sudoku"
+        },
+        {
+            title: "EXÁMENES DE PRÁCTICA",
+            dbName: "Exámenes",
+            icon: <img src={examenIcon} alt="Exámenes de Práctica" className="w-20 h-20 object-contain drop-shadow-lg" />,
+            color: "#10b981", // Emerald green color
+            bg: "bg-emerald-500",
+            hover: "hover:shadow-emerald-500/20 hover:border-emerald-500/50",
+            path: "/examenes"
         }
     ];
 
