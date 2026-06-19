@@ -2,15 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import ThemeToggle from '../components/common/ThemeToggle.jsx';
-import { ArrowRight, Brain, Sparkles, LayoutGrid, CheckCircle2, Phone, Mail } from 'lucide-react';
+import { LayoutGrid, Brain, Sparkles, MonitorOff, GraduationCap, Users, MousePointerClick, Settings2, Printer } from 'lucide-react';
 
 const LandingView = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-[var(--edu-bg)] text-[var(--edu-text-main)] transition-colors duration-500 overflow-x-hidden font-sans">
+        <div className="min-h-screen bg-[#f8faff] dark:bg-[var(--edu-bg)] text-[#0f172a] dark:text-[var(--edu-text-main)] transition-colors duration-500 overflow-x-hidden font-sans">
             {/* Header / Navbar */}
-            <header className="fixed top-0 left-0 right-0 bg-[var(--edu-bg)]/80 backdrop-blur-md border-b border-[var(--edu-border)] z-50">
+            <header className="bg-[#0f172a] text-white">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <MenteActivaLogo className="scale-90 origin-left" />
                     
@@ -18,123 +18,178 @@ const LandingView = () => {
                         <ThemeToggle />
                         <button 
                             onClick={() => navigate('/login')}
-                            className="bg-[var(--edu-accent)] text-white px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:brightness-110 transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                            className="bg-transparent text-white border border-white/30 px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:bg-white/10 transition-all"
                         >
-                            Acceder <ArrowRight size={16} />
+                            Iniciar Sesión
                         </button>
                     </div>
                 </div>
             </header>
 
             {/* Hero Section */}
-            <section className="pt-40 pb-20 px-6 relative">
-                {/* Background Blobs */}
-                <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] -z-10"></div>
-                <div className="absolute top-40 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] -z-10"></div>
-
-                <div className="max-w-5xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--edu-bg-card)] border border-[var(--edu-border)] shadow-sm mb-8 animate-fade-in">
-                        <Sparkles size={16} className="text-orange-500" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-[var(--edu-text-muted)]">Plataforma Pedagógica Inteligente</span>
-                    </div>
-
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight mb-6" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                        Conéctalos con su <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">mente</span>.
-                    </h1>
-                    
-                    <p className="text-lg md:text-xl text-[var(--edu-text-muted)] max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Crea material educativo interactivo en segundos. Genera crucigramas, sopas de letras y sudokus personalizados para transformar el aprendizaje de tus estudiantes.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <section className="pt-16 pb-20 px-6 max-w-7xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-12 items-center">
+                    {/* Left: Text */}
+                    <div className="order-2 md:order-1 text-center md:text-left">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-6" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                            Crea <span className="text-[#c28d22]">juegos mentales personalizados</span> para tus hijos en minutos.
+                        </h1>
+                        <p className="text-lg md:text-xl text-[#334155] dark:text-[var(--edu-text-muted)] mb-10 leading-relaxed font-medium">
+                            Crucigramas, sopas de letras y sudokus listos para imprimir. La forma más divertida de aprender en casa.
+                        </p>
                         <button 
                             onClick={() => navigate('/login')}
-                            className="w-full sm:w-auto bg-[var(--edu-accent)] text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:brightness-110 transition-all shadow-xl hover:shadow-blue-500/20 active:scale-95"
+                            className="w-full md:w-auto bg-[#fbbf24] hover:bg-[#f59e0b] text-[#78350f] px-10 py-5 rounded-2xl font-black text-lg tracking-wide transition-all shadow-[0_8px_30px_rgb(251,191,36,0.3)] hover:shadow-[0_8px_40px_rgb(251,191,36,0.5)] hover:-translate-y-1 active:translate-y-0"
                         >
-                            Iniciar Sesión
+                            [ Crear mi primer juego gratis ]
                         </button>
-                        <a 
-                            href="#caracteristicas"
-                            className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm text-[var(--edu-text-main)] hover:bg-[var(--edu-bg-card)] transition-all border border-transparent hover:border-[var(--edu-border)]"
-                        >
-                            Ver Herramientas
-                        </a>
+                    </div>
+
+                    {/* Right: Image */}
+                    <div className="order-1 md:order-2 relative flex justify-center">
+                        <img 
+                            src="/hero_child.png" 
+                            alt="Niño feliz resolviendo crucigramas" 
+                            className="w-full max-w-md md:max-w-lg object-contain animate-fade-in drop-shadow-2xl"
+                        />
                     </div>
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section id="caracteristicas" className="py-24 px-6 bg-[var(--edu-bg-card)] border-y border-[var(--edu-border)] relative">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-black mb-4">Materiales diseñados para aprender</h2>
-                        <p className="text-[var(--edu-text-muted)]">Herramientas poderosas y fáciles de usar para docentes y creadores de contenido.</p>
+            {/* Games Preview Section */}
+            <section className="py-16 px-6 bg-white dark:bg-[var(--edu-bg-card)] border-y border-[#e2e8f0] dark:border-[var(--edu-border)]">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Sopa de Letras */}
+                    <div className="bg-[#1e3a8a] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col items-center text-center transform hover:scale-105 transition-transform">
+                        <h3 className="bg-[#1e3a8a] w-full pb-4 text-xl font-black tracking-wide border-b border-white/20">Sopa de Letras</h3>
+                        <div className="w-full aspect-square bg-white rounded-2xl mt-6 mb-4 flex items-center justify-center relative overflow-hidden border-4 border-[#1e3a8a]/20">
+                            <LayoutGrid size={64} className="text-[#1e3a8a] opacity-50" />
+                        </div>
+                        <p className="font-bold text-lg mb-1">Sopa de Letras</p>
+                        <p className="text-sm text-blue-200">Pupiletras temáticos<br/>(ej. Planetas).</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Feature 1 */}
-                        <div className="bg-[var(--edu-bg)] p-8 rounded-3xl border border-[var(--edu-border)] shadow-sm hover:shadow-xl transition-all group">
-                            <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                <LayoutGrid className="text-blue-500" size={28} />
+                    {/* Crucigrama */}
+                    <div className="bg-[#ea580c] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col items-center text-center transform hover:scale-105 transition-transform">
+                        <h3 className="bg-[#ea580c] w-full pb-4 text-xl font-black tracking-wide border-b border-white/20">Crucigrama Colorido</h3>
+                        <div className="w-full aspect-square bg-white rounded-2xl mt-6 mb-4 flex items-center justify-center relative overflow-hidden border-4 border-[#ea580c]/20">
+                            <Brain size={64} className="text-[#ea580c] opacity-50" />
+                        </div>
+                        <p className="font-bold text-lg mb-1">Crucigrama Colorido</p>
+                        <p className="text-sm text-orange-200">¡Tú eliges las palabras y el<br/>nivel de dificultad!</p>
+                    </div>
+
+                    {/* Sudoku */}
+                    <div className="bg-[#16a34a] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col items-center text-center transform hover:scale-105 transition-transform">
+                        <h3 className="bg-[#16a34a] w-full pb-4 text-xl font-black tracking-wide border-b border-white/20">Sudoku para Niños</h3>
+                        <div className="w-full aspect-square bg-white rounded-2xl mt-6 mb-4 flex items-center justify-center relative overflow-hidden border-4 border-[#16a34a]/20">
+                            <Sparkles size={64} className="text-[#16a34a] opacity-50" />
+                        </div>
+                        <p className="font-bold text-lg mb-1">Sudoku para Niños</p>
+                        <p className="text-sm text-green-200">¡Tú eliges los números y el<br/>nivel de dificultad!</p>
+                    </div>
+                </div>
+            </section>
+
+            {/* 3 Steps Section */}
+            <section className="py-24 px-6 bg-[#f0f9ff] dark:bg-[var(--edu-bg)]">
+                <div className="max-w-5xl mx-auto text-center">
+                    <h2 className="text-3xl md:text-4xl font-black mb-16 text-[#0f172a] dark:text-white">3 Pasos Visual Demo</h2>
+                    
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 relative">
+                        {/* Step 1 */}
+                        <div className="flex-1 flex flex-col items-center relative z-10">
+                            <div className="w-24 h-24 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-4 border-[#3b82f6] shadow-lg flex items-center justify-center mb-6 relative">
+                                <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#3b82f6] text-white rounded-full flex items-center justify-center font-black text-sm">1</div>
+                                <MousePointerClick size={40} className="text-[#3b82f6]" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">Sopa de Letras</h3>
-                            <p className="text-[var(--edu-text-muted)] text-sm leading-relaxed mb-6">
-                                Diseña sopas de letras con palabras temáticas. Ideal para mejorar el vocabulario y la concentración visual de los estudiantes.
+                            <h3 className="text-xl font-bold mb-2">1. Elige el juego</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
+                                (Selecciona entre crucigramas, pupiletras o sudoku).
                             </p>
-                            <ul className="space-y-2 text-sm text-[var(--edu-text-muted)]">
-                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500" /> Exportación en PDF</li>
-                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500" /> Plantillas personalizables</li>
-                            </ul>
                         </div>
 
-                        {/* Feature 2 */}
-                        <div className="bg-[var(--edu-bg)] p-8 rounded-3xl border border-[var(--edu-border)] shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
-                            <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl">Popular</div>
-                            <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                <Brain className="text-orange-500" size={28} />
+                        <div className="hidden md:block w-32 h-1 bg-[#cbd5e1] dark:bg-[var(--edu-border)] absolute top-12 left-[20%] right-auto -z-0"></div>
+
+                        {/* Step 2 */}
+                        <div className="flex-1 flex flex-col items-center relative z-10 mt-12 md:mt-0">
+                            <div className="w-24 h-24 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-4 border-[#3b82f6] shadow-lg flex items-center justify-center mb-6 relative">
+                                <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#3b82f6] text-white rounded-full flex items-center justify-center font-black text-sm">2</div>
+                                <Settings2 size={40} className="text-[#3b82f6]" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">Crucigramas</h3>
-                            <p className="text-[var(--edu-text-muted)] text-sm leading-relaxed mb-6">
-                                Genera crucigramas automáticos a partir de tus propias palabras y pistas. Fomenta el pensamiento crítico de forma divertida.
+                            <h3 className="text-xl font-bold mb-2">2. Personalízalo</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
+                                (Escribe tus propias palabras, temas o nombres de tu hijo para hacerlo especial).
                             </p>
-                            <ul className="space-y-2 text-sm text-[var(--edu-text-muted)]">
-                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500" /> Auto-generación inteligente</li>
-                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500" /> Claves de respuesta incluidas</li>
-                            </ul>
                         </div>
 
-                        {/* Feature 3 */}
-                        <div className="bg-[var(--edu-bg)] p-8 rounded-3xl border border-[var(--edu-border)] shadow-sm hover:shadow-xl transition-all group">
-                            <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                <Sparkles className="text-purple-500" size={28} />
+                        <div className="hidden md:block w-32 h-1 bg-[#cbd5e1] dark:bg-[var(--edu-border)] absolute top-12 right-[20%] left-auto -z-0"></div>
+
+                        {/* Step 3 */}
+                        <div className="flex-1 flex flex-col items-center relative z-10 mt-12 md:mt-0">
+                            <div className="w-24 h-24 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-4 border-[#3b82f6] shadow-lg flex items-center justify-center mb-6 relative">
+                                <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#3b82f6] text-white rounded-full flex items-center justify-center font-black text-sm">3</div>
+                                <Printer size={40} className="text-[#3b82f6]" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">Sudokus Educativos</h3>
-                            <p className="text-[var(--edu-text-muted)] text-sm leading-relaxed mb-6">
-                                Crea cuadrículas de Sudoku con distintos niveles de dificultad. Perfecto para desarrollar habilidades lógicas y matemáticas.
+                            <h3 className="text-xl font-bold mb-2">3. ¡Imprime y juega!</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
+                                (Descarga el PDF al instante y dale vida al aprendizaje en casa).
                             </p>
-                            <ul className="space-y-2 text-sm text-[var(--edu-text-muted)]">
-                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500" /> Niveles configurables</li>
-                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500" /> Formato de impresión óptimo</li>
-                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Benefits Section */}
+            <section className="py-24 px-6 bg-[#fffbeb] dark:bg-[var(--edu-bg-card)] border-t border-[#fde68a] dark:border-[var(--edu-border)]">
+                <div className="max-w-5xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-black mb-16 text-center text-[#0f172a] dark:text-white">Beneficios</h2>
+                    
+                    <div className="grid md:grid-cols-3 gap-12 text-center">
+                        {/* Benefit 1 */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 text-red-500">
+                                <MonitorOff size={40} />
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Desconexión digital:</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
+                                Aleja a tus hijos de las pantallas con actividades tangibles que estimulen su cerebro.
+                            </p>
+                        </div>
+
+                        {/* Benefit 2 */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-blue-600">
+                                <GraduationCap size={40} />
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Refuerzo escolar divertido:</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
+                                Ideal para repasar vocabulario, ortografía y matemáticas sin que se sientan presionados.
+                            </p>
+                        </div>
+
+                        {/* Benefit 3 */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600">
+                                <Users size={40} />
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Tiempo en familia:</h3>
+                            <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
+                                Crea momentos únicos guiándolos y celebrando sus logros.
+                            </p>
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-[var(--edu-bg)] py-12 px-6 border-t border-[var(--edu-border)]">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex flex-col items-center md:items-start gap-4">
-                        <MenteActivaLogo className="scale-75 origin-left" />
-                        <p className="text-xs text-[var(--edu-text-muted)]">
+            <footer className="bg-[#0f172a] text-white py-12 px-6">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+                    <div>
+                        <p className="font-bold mb-2">MENTE ACTIVA</p>
+                        <p className="text-xs text-white/50">
                             &copy; {new Date().getFullYear()} Mente Activa. Todos los derechos reservados.
                         </p>
-                    </div>
-
-                    <div className="flex gap-6 text-sm font-bold text-[var(--edu-text-muted)]">
-                        <a href="mailto:administracionmenteactiva@gmail.com" className="hover:text-[var(--edu-accent)] transition-colors flex items-center gap-2">
-                            <Mail size={16} /> Contacto
-                        </a>
                     </div>
                 </div>
             </footer>
