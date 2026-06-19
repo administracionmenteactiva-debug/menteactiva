@@ -99,9 +99,9 @@ const LandingView = () => {
                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 relative">
                         {/* Step 1 */}
                         <div className="flex-1 flex flex-col items-center relative z-10">
-                            <div className="w-24 h-24 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-4 border-[#3b82f6] shadow-lg flex items-center justify-center mb-6 relative">
-                                <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#3b82f6] text-white rounded-full flex items-center justify-center font-black text-sm">1</div>
-                                <MousePointerClick size={40} className="text-[#3b82f6]" />
+                            <div className="w-32 h-32 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-[6px] border-[#81aebf] shadow-lg flex items-center justify-center mb-6 relative overflow-hidden p-3">
+                                <div className="absolute top-2 left-2 w-8 h-8 bg-[#375e8f] text-white rounded-full flex items-center justify-center font-black text-sm z-10 shadow-md border-2 border-white">1</div>
+                                <img src="/icon_step1.png" alt="Elige el juego" className="w-full h-full object-contain" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">1. Elige el juego</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
@@ -109,13 +109,13 @@ const LandingView = () => {
                             </p>
                         </div>
 
-                        <div className="hidden md:block w-32 h-1 bg-[#cbd5e1] dark:bg-[var(--edu-border)] absolute top-12 left-[20%] right-auto -z-0"></div>
+                        <div className="hidden md:block w-32 h-1 bg-[#81aebf] dark:bg-[var(--edu-border)] absolute top-16 left-[20%] right-auto -z-0"></div>
 
                         {/* Step 2 */}
                         <div className="flex-1 flex flex-col items-center relative z-10 mt-12 md:mt-0">
-                            <div className="w-24 h-24 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-4 border-[#3b82f6] shadow-lg flex items-center justify-center mb-6 relative">
-                                <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#3b82f6] text-white rounded-full flex items-center justify-center font-black text-sm">2</div>
-                                <Settings2 size={40} className="text-[#3b82f6]" />
+                            <div className="w-32 h-32 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-[6px] border-[#81aebf] shadow-lg flex items-center justify-center mb-6 relative overflow-hidden p-3">
+                                <div className="absolute top-2 left-2 w-8 h-8 bg-[#375e8f] text-white rounded-full flex items-center justify-center font-black text-sm z-10 shadow-md border-2 border-white">2</div>
+                                <img src="/icon_step2.png" alt="Personalízalo" className="w-full h-full object-contain" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">2. Personalízalo</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
@@ -123,13 +123,13 @@ const LandingView = () => {
                             </p>
                         </div>
 
-                        <div className="hidden md:block w-32 h-1 bg-[#cbd5e1] dark:bg-[var(--edu-border)] absolute top-12 right-[20%] left-auto -z-0"></div>
+                        <div className="hidden md:block w-32 h-1 bg-[#81aebf] dark:bg-[var(--edu-border)] absolute top-16 right-[20%] left-auto -z-0"></div>
 
                         {/* Step 3 */}
                         <div className="flex-1 flex flex-col items-center relative z-10 mt-12 md:mt-0">
-                            <div className="w-24 h-24 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-4 border-[#3b82f6] shadow-lg flex items-center justify-center mb-6 relative">
-                                <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#3b82f6] text-white rounded-full flex items-center justify-center font-black text-sm">3</div>
-                                <Printer size={40} className="text-[#3b82f6]" />
+                            <div className="w-32 h-32 bg-white dark:bg-[var(--edu-bg-card)] rounded-full border-[6px] border-[#81aebf] shadow-lg flex items-center justify-center mb-6 relative overflow-hidden p-3">
+                                <div className="absolute top-2 left-2 w-8 h-8 bg-[#375e8f] text-white rounded-full flex items-center justify-center font-black text-sm z-10 shadow-md border-2 border-white">3</div>
+                                <img src="/icon_step3.png" alt="¡Imprime y juega!" className="w-full h-full object-contain" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">3. ¡Imprime y juega!</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
@@ -148,8 +148,8 @@ const LandingView = () => {
                     <div className="grid md:grid-cols-3 gap-12 text-center">
                         {/* Benefit 1 */}
                         <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 text-red-500">
-                                <MonitorOff size={40} />
+                            <div className="w-32 h-32 mb-6">
+                                <img src="/icon_ben1.png" alt="Desconexión digital" className="w-full h-full object-contain" />
                             </div>
                             <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Desconexión digital:</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
@@ -159,8 +159,8 @@ const LandingView = () => {
 
                         {/* Benefit 2 */}
                         <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-blue-600">
-                                <GraduationCap size={40} />
+                            <div className="w-32 h-32 mb-6">
+                                <img src="/icon_ben2.png" alt="Refuerzo escolar divertido" className="w-full h-full object-contain" />
                             </div>
                             <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Refuerzo escolar divertido:</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
@@ -170,8 +170,8 @@ const LandingView = () => {
 
                         {/* Benefit 3 */}
                         <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600">
-                                <Users size={40} />
+                            <div className="w-32 h-32 mb-6">
+                                <img src="/icon_ben3.png" alt="Tiempo en familia" className="w-full h-full object-contain" />
                             </div>
                             <h3 className="text-lg font-bold mb-3 text-[#0f172a] dark:text-white">Tiempo en familia:</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm leading-relaxed">
