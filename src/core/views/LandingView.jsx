@@ -1,5 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { databaseService } from '../services/databaseService.js';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import ThemeToggle from '../components/common/ThemeToggle.jsx';
 import { LayoutGrid, Brain, Sparkles, MonitorOff, GraduationCap, Users, MousePointerClick, Settings2, Printer } from 'lucide-react';
@@ -9,6 +10,27 @@ import iconoSudoku from '../../assets/ICONO SUDOKU.PNG';
 
 const LandingView = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const ref = searchParams.get('ref');
+    const [referredWalink, setReferredWalink] = useState(null);
+
+    useEffect(() => {
+        if (ref) {
+            databaseService.getPublicContact(ref)
+                .then(link => {
+                    if (link) setReferredWalink(link);
+                })
+                .catch(err => console.error("Error fetching referrer:", err));
+        }
+    }, [ref]);
+
+    const handleAccessClick = () => {
+        if (referredWalink) {
+            window.location.href = referredWalink;
+        } else {
+            navigate('/login' + (ref ? `?ref=${ref}` : ''));
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#f8faff] dark:bg-[var(--edu-bg)] text-[#0f172a] dark:text-[var(--edu-text-main)] transition-colors duration-500 overflow-x-hidden font-sans">
@@ -20,7 +42,7 @@ const LandingView = () => {
                     <div className="flex items-center gap-6">
                         <ThemeToggle />
                         <button 
-                            onClick={() => navigate('/login')}
+                            onClick={handleAccessClick}
                             className="bg-transparent text-white border border-white/30 px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:bg-white/10 transition-all"
                         >
                             Iniciar Sesión
@@ -41,7 +63,7 @@ const LandingView = () => {
                             Crucigramas, sopas de letras y sudokus listos para imprimir. La forma más divertida de aprender en casa.
                         </p>
                         <button 
-                            onClick={() => navigate('/login')}
+                            onClick={handleAccessClick}
                             className="w-full md:w-auto bg-[#fbbf24] hover:bg-[#f59e0b] text-[#78350f] px-10 py-5 rounded-2xl font-black text-lg tracking-wide transition-all shadow-[0_8px_30px_rgb(251,191,36,0.3)] hover:shadow-[0_8px_40px_rgb(251,191,36,0.5)] hover:-translate-y-1 active:translate-y-0"
                         >
                             [ Acceder a la plataforma ]
