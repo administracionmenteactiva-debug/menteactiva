@@ -11,8 +11,10 @@ const LandingView = () => {
         <div className="min-h-screen bg-[#f8faff] dark:bg-[var(--edu-bg)] text-[#0f172a] dark:text-[var(--edu-text-main)] transition-colors duration-500 overflow-x-hidden font-sans">
             {/* Header / Navbar */}
             <header className="bg-[#0f172a] text-white">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <MenteActivaLogo className="scale-90 origin-left" />
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <div className="brightness-0 invert">
+                        <MenteActivaLogo className="scale-[0.8] origin-left" />
+                    </div>
                     
                     <div className="flex items-center gap-6">
                         <ThemeToggle />
@@ -27,7 +29,7 @@ const LandingView = () => {
             </header>
 
             {/* Hero Section */}
-            <section className="pt-16 pb-20 px-6 max-w-7xl mx-auto">
+            <section className="pt-12 pb-20 px-6 max-w-7xl mx-auto">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     {/* Left: Text */}
                     <div className="order-2 md:order-1 text-center md:text-left">
@@ -41,7 +43,7 @@ const LandingView = () => {
                             onClick={() => navigate('/login')}
                             className="w-full md:w-auto bg-[#fbbf24] hover:bg-[#f59e0b] text-[#78350f] px-10 py-5 rounded-2xl font-black text-lg tracking-wide transition-all shadow-[0_8px_30px_rgb(251,191,36,0.3)] hover:shadow-[0_8px_40px_rgb(251,191,36,0.5)] hover:-translate-y-1 active:translate-y-0"
                         >
-                            [ Crear mi primer juego gratis ]
+                            [ Acceder a la plataforma ]
                         </button>
                     </div>
 
@@ -49,7 +51,7 @@ const LandingView = () => {
                     <div className="order-1 md:order-2 relative flex justify-center">
                         <img 
                             src="/hero_child.png" 
-                            alt="Niño feliz resolviendo crucigramas" 
+                            alt="Adolescente concentrado resolviendo juegos mentales" 
                             className="w-full max-w-md md:max-w-lg object-contain animate-fade-in drop-shadow-2xl"
                         />
                     </div>
