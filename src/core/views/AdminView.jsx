@@ -1773,6 +1773,9 @@ const AdminView = () => {
                                         <div className="text-[10px] font-black uppercase tracking-widest text-[var(--edu-text-muted)] mb-8 opacity-40">Vista Previa en Tiempo Real</div>
                                         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-300">
                                             <div className="p-8">
+                                                <div className="text-center mb-8">
+                                                    <img src="https://drive.google.com/uc?export=view&id=1NzwdRG4hA6yRd9xqFZfY_-p7Q1Gsy1fV" alt="Mente Activa Logo" className="w-full max-w-[200px] mx-auto" />
+                                                </div>
                                                 <h1 className="text-[#3b82f6] text-2xl font-black text-center mb-6">
                                                     {(globalVars.META_EMAIL_CONFIG?.[globalVars.META_EMAIL_CONFIG?.current || 'welcome']?.greeting || '¡Hola, {nombre}!').replace('{nombre}', '[Nombre]')}
                                                 </h1>
