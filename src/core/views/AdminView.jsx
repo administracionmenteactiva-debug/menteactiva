@@ -1774,7 +1774,7 @@ const AdminView = () => {
                                         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-300">
                                             <div className="p-8">
                                                 <div className="text-center mb-8 flex flex-col items-center">
-                                                    <img src="https://menteactiva-peru.vercel.app/logo_mail.png" alt="Mente Activa Logo" className="w-[110px] mx-auto mb-2" />
+                                                    <img src="https://menteactiva-peru.vercel.app/logo_mail.png" alt="Mente Activa Logo" className="h-[110px] w-auto object-contain mx-auto mb-2" />
                                                     <div className="flex gap-1.5 text-[26px] font-black tracking-tighter leading-none" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
                                                         <span className="text-slate-800">MENTE</span>
                                                         <span className="text-[#d97706]">ACTIVA</span>

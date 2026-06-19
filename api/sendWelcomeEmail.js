@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         htmlContent: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
                 <div style="text-align: center; margin-bottom: 25px;">
-                    <img src="https://menteactiva-peru.vercel.app/logo_mail.png" alt="Mente Activa Logo" width="120" style="display: block; margin: 0 auto 10px auto; border: 0; outline: none; text-decoration: none;" />
+                    <img src="https://menteactiva-peru.vercel.app/logo_mail.png" alt="Mente Activa Logo" height="110" style="display: block; margin: 0 auto 10px auto; border: 0; outline: none; text-decoration: none;" />
                     <div style="margin-top: 5px; font-family: system-ui, -apple-system, sans-serif; line-height: 1;">
                         <span style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #1e293b; margin-right: 4px;">MENTE</span>
                         <span style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #d97706;">ACTIVA</span>
