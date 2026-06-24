@@ -39,22 +39,22 @@ const MathText = ({ text }) => {
 const parseQuestions = (text) => {
     if (!text) return [];
     
-    const regex = /\[pregunta\]([\s\S]*?)\[respuesta\]([\s\S]*?)\[fin\]/gi;
+    // Buscar bloques delimitados por [pregunta] y [finpregunta]
+    const regex = /\[pregunta\]([\s\S]*?)\[finpregunta\]/gi;
     const matches = [...text.matchAll(regex)];
     const parsed = [];
     
     matches.forEach(m => {
-        const questionBlock = m[1].trim();
-        const answerText = m[2].trim();
+        const blockText = m[1];
         
-        let questionText = questionBlock;
+        let questionText = '';
         let options = [];
+        let answerText = '';
         
-        // Buscar sección [opciones]
-        const optionsMatch = questionBlock.match(/([\s\S]*?)\[opciones\]([\s\S]*)/i);
+        // 1. Extraer opciones
+        const optionsMatch = blockText.match(/\[opciones\]([\s\S]*?)\[finopciones\]/i);
         if (optionsMatch) {
-            questionText = optionsMatch[1].trim();
-            const optionsBlock = optionsMatch[2].trim();
+            const optionsBlock = optionsMatch[1].trim();
             optionsBlock.split('\n').forEach(line => {
                 const cleanLine = line.trim();
                 if (cleanLine) {
@@ -63,11 +63,25 @@ const parseQuestions = (text) => {
             });
         }
         
-        parsed.push({
-            question: questionText,
-            options: options,
-            answer: answerText
-        });
+        // 2. Extraer respuesta
+        const answerMatch = blockText.match(/\[respuesta\]([\s\S]*?)\[finrespuesta\]/i);
+        if (answerMatch) {
+            answerText = answerMatch[1].trim();
+        }
+        
+        // 3. Obtener el texto de la pregunta (removiendo bloques de opciones y respuestas)
+        let cleanedQuestion = blockText;
+        cleanedQuestion = cleanedQuestion.replace(/\[opciones\][\s\S]*?\[finopciones\]/gi, '');
+        cleanedQuestion = cleanedQuestion.replace(/\[respuesta\][\s\S]*?\[finrespuesta\]/gi, '');
+        questionText = cleanedQuestion.trim();
+        
+        if (questionText) {
+            parsed.push({
+                question: questionText,
+                options: options,
+                answer: answerText
+            });
+        }
     });
     
     return parsed;
@@ -297,23 +311,29 @@ A) Primera opción
 B) Segunda opción
 C) Tercera opción
 D) Cuarta opción
+[finopciones]
 [respuesta]
 Letra o texto de la respuesta correcta (ej. C)
-[fin]
+[finrespuesta]
+[finpregunta]
 
 Estructura para preguntas abiertas o de completar:
 [pregunta]
 ¿Cuál es la pregunta o instrucción?
 [respuesta]
 Respuesta esperada o sugerida para el profesor.
-[fin]
+[finrespuesta]
+[finpregunta]
 
-REGLAS ADICIONALES:
-1. No agregues números de lista antes de las etiquetas.
-2. Cada bloque de pregunta debe terminar obligatoriamente con [fin].
-3. Mantén el texto limpio y fácil de leer.
-4. Transcribe exactamente el contenido del material escolar, pero adáptalo a este formato.
-5. El título general sugerido para este examen es "${tituloVal}" para un nivel de "${gradoVal}".`;
+REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
+1. CADA pregunta DEBE estar contenida exactamente entre [pregunta] y [finpregunta].
+2. Si la pregunta tiene opciones de respuesta, estas DEBEN estar contenidas exactamente entre [opciones] y [finopciones].
+3. La respuesta de la pregunta DEBE estar contenida exactamente entre [respuesta] y [finrespuesta].
+4. ESTÁ PROHIBIDO omitir cualquiera de estas etiquetas de apertura y cierre, sin importar la cantidad de preguntas a procesar (incluso si son 100 o más). Cierra cada etiqueta de forma exacta.
+5. No agregues números de lista antes de las etiquetas.
+6. Mantén el texto limpio y fácil de leer.
+7. Transcribe exactamente el contenido del material escolar, pero adáptalo a este formato.
+8. El título general sugerido para este examen es "${tituloVal}" para un nivel de "${gradoVal}".`;
 
         navigator.clipboard.writeText(promptText).then(() => {
             setPromptCopied(true);

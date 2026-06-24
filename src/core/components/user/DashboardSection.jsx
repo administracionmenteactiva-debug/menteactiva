@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { Home, Sparkles, BookOpen, Calendar, Lightbulb, ArrowRight, Zap, ShieldCheck, LayoutGrid, Lock, MessageCircle, AlertTriangle, Clock } from 'lucide-react';
+import { Home, Sparkles, BookOpen, Calendar, Lightbulb, ArrowRight, Zap, ShieldCheck, LayoutGrid, Lock, MessageCircle, AlertTriangle, Clock, Calculator } from 'lucide-react';
 import crucigramaIcon from '../../../assets/icono_crucigrama-1.png';
 import sopaIcon from '../../../assets/icono_sopa_1.png';
 import sudokuIcon from '../../../assets/ICONO SUDOKU.PNG';
 import examenIcon from '../../../assets/icono_examen.png';
+import crucimateIcon from '../../../assets/icono_crucimate.png';
 
 const DashboardSection = () => {
     const { user } = useAuth();
@@ -77,6 +78,15 @@ const DashboardSection = () => {
             bg: "bg-orange-500",
             hover: "hover:shadow-orange-500/20 hover:border-orange-500/50",
             path: "/crucigramas"
+        },
+        {
+            title: "CRUCIMATE",
+            dbName: "Crucigramas",
+            icon: <img src={crucimateIcon} alt="Crucimate" className="w-20 h-20 object-contain drop-shadow-lg" />,
+            color: "#e11d48",
+            bg: "bg-rose-500",
+            hover: "hover:shadow-rose-500/20 hover:border-rose-500/50",
+            path: "/crucimate"
         },
         {
             title: "SOPA DE LETRAS",
