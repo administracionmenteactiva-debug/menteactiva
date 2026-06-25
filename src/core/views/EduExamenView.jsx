@@ -583,7 +583,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
             doc.setTextColor(150);
             doc.setFont("helvetica", "normal");
             doc.text("Mente Activa", 15, 10);
-            doc.text("Exámenes", 195, 10, { align: 'right' });
+            doc.text("Crea Quiz", 195, 10, { align: 'right' });
             doc.text("Generado con Mente Activa: Aprender en casa es más divertido", 105, 292, { align: 'center' });
         };
 
@@ -591,7 +591,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
             await dibujarPagina(false); // Reto
             doc.addPage();
             await dibujarPagina(true); // Solución
-            doc.save(`${titulo.replace(/\s+/g, '_')}_Examen_MenteActiva.pdf`);
+            doc.save(`${titulo.replace(/\s+/g, '_')}_Quiz_MenteActiva.pdf`);
             
             if (btn) btn.innerText = "✅ PDF DESCARGADO";
             setTimeout(() => { if (btn) btn.innerText = "DESCARGAR PDF"; }, 3000);
@@ -732,7 +732,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
                         <footer className="border-t border-slate-200 pt-4 flex justify-between items-center text-[10px] text-slate-400 mt-auto">
                             <span>Mente Activa</span>
                             <span>Generado con Mente Activa: Aprender en casa es más divertido</span>
-                            <span>Exámenes de Práctica</span>
+                            <span>Crea Quiz</span>
                         </footer>
                     </div>
                 </div>
@@ -796,12 +796,12 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
                     {trialStatus === 'expired' && (
                         <>
                             <h2 className="text-3xl font-black uppercase tracking-tight text-red-400">Tu tiempo ha terminado</h2>
-                            <p className="text-slate-400 text-lg">¡Esperamos que te haya gustado EduExamen! 🚀</p>
+                            <p className="text-slate-400 text-lg">¡Esperamos que te haya gustado Crea Quiz! 🚀</p>
                             <div className="bg-emerald-500/10 p-8 rounded-[2rem] border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
                                 <h3 className="text-emerald-400 font-black text-xl mb-4 uppercase tracking-tighter">🔥 Oferta de Lanzamiento 🔥</h3>
                                 <div className="space-y-2 text-left inline-block">
                                     <p className="text-sm font-bold text-slate-200">✅ ACCESO POR UN AÑO</p>
-                                    <p className="text-sm font-bold text-slate-200">✅ EXÁMENES: ILIMITADOS</p>
+                                    <p className="text-sm font-bold text-slate-200">✅ CREA QUIZ: ILIMITADOS</p>
                                     <p className="text-sm font-bold text-slate-200">✅ CRUCIGRAMAS Y PUPILETRAS: ILIMITADOS</p>
                                     <p className="text-sm font-black text-emerald-400 text-lg mt-4 bg-emerald-400/10 py-2 px-4 rounded-xl border border-emerald-400/20">💰 COSTO: S/15 PAGO ÚNICO</p>
                                 </div>
@@ -1054,7 +1054,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
                             onClick={() => setVistaActual('reto')}
                             className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-300 ${vistaActual === 'reto' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
                         >
-                            📝 Hoja de Examen (Reto)
+                            📝 Hoja de Quiz (Reto)
                         </button>
                     </div>
 
@@ -1068,10 +1068,10 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500 opacity-[0.05] rounded-full blur-3xl -mr-10 -mt-10"></div>
                             <div className="relative z-10 flex flex-col items-center">
                                 <div className="w-24 h-24 rounded-3xl flex items-center justify-center mb-5 shadow-inner" style={{ backgroundColor: '#10b98115' }}>
-                                    <img src={examenIcon} alt="Exámenes de Práctica" className="w-20 h-20 object-contain drop-shadow-lg" />
+                                    <img src={examenIcon} alt="Crea Quiz" className="w-20 h-20 object-contain drop-shadow-lg" />
                                 </div>
                                 <h3 className="text-2xl uppercase font-black text-white leading-tight tracking-tight">
-                                    EXÁMENES
+                                    CREA QUIZ
                                 </h3>
                             </div>
                         </div>
@@ -1085,7 +1085,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
                                     disabled={questions.length === 0}
                                     className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-2xl font-black uppercase text-[10px] flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
                                 >
-                                    <Type size={14} /> Generar Examen
+                                    <Type size={14} /> Generar Quiz
                                 </button>
                                 <button 
                                     id="BTN_PRINT_NATIVE"

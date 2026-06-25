@@ -107,9 +107,9 @@ const DashboardSection = () => {
             path: "/sudoku"
         },
         {
-            title: "EXÁMENES DE PRÁCTICA",
+            title: "CREA QUIZ",
             dbName: "Exámenes",
-            icon: <img src={examenIcon} alt="Exámenes de Práctica" className="w-20 h-20 object-contain drop-shadow-lg" />,
+            icon: <img src={examenIcon} alt="Crea Quiz" className="w-20 h-20 object-contain drop-shadow-lg" />,
             color: "#10b981", // Emerald green color
             bg: "bg-emerald-500",
             hover: "hover:shadow-emerald-500/20 hover:border-emerald-500/50",
