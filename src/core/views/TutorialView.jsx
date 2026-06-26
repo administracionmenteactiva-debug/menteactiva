@@ -5,6 +5,15 @@ import { ChevronLeft, Play, Clock, Calendar, Video, ShieldCheck } from 'lucide-r
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import { db } from '../services/databaseService.js';
 
+const TUTORIAL_TOOLS = [
+    { id: 'general', label: 'Inicio Maestro / General' },
+    { id: 'educruci', label: 'EduCruci (Crucigramas)' },
+    { id: 'educrucimate', label: 'EduCrucimate (Crucimate)' },
+    { id: 'edusopa', label: 'EduSopa (Sopa de Letras)' },
+    { id: 'edusudoku', label: 'EduSudoku (Sudoku)' },
+    { id: 'eduquiz', label: 'EduQuiz (Crea Quiz)' }
+];
+
 const TutorialView = () => {
     const navigate = useNavigate();
     const { globalVars, user } = useAuth();
@@ -14,10 +23,11 @@ const TutorialView = () => {
         : [
             { 
                 id: 't1', 
-                title: 'EduCrea: Tutorial de Inicio a Fin', 
+                title: 'EduCruci: Tutorial de Inicio a Fin', 
                 url: 'https://www.youtube.com/embed/9forXItrWGo',
+                tool: 'educruci',
                 duration: '01:29', 
-                date: '6/5/2026',
+                date: '19 Abr 2026',
                 description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
             }
         ];
@@ -73,25 +83,47 @@ const TutorialView = () => {
                     </div>
                 </section>
 
-                <aside className="flex-1 min-w-[380px] bg-[#1e293b]/30 backdrop-blur-md border-l border-slate-800 p-4 space-y-4">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-white">Contenido Sugerido</h3>
-                    {tutorials.map((video) => (
-                        <div 
-                            key={video.id} 
-                            onClick={() => {
-                                setSelectedVideo(video);
-                                if (user?.id) {
-                                    db.logActivity(user.id, 'VIO_TUTORIAL', { 
-                                        video_id: video.id,
-                                        video_title: video.title 
-                                    });
-                                }
-                            }} 
-                            className={`p-4 rounded-2xl border transition-all cursor-pointer ${selectedVideo.id === video.id ? 'bg-blue-600 border-blue-500' : 'bg-slate-800/40 border-slate-700 hover:bg-slate-800/60'}`}
-                        >
-                            <h4 className="text-[11px] font-bold">{video.title}</h4>
-                        </div>
-                    ))}
+                <aside className="flex-1 min-w-[380px] bg-[#1e293b]/30 backdrop-blur-md border-l border-slate-800 p-4 overflow-y-auto premium-scrollbar space-y-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-white border-b border-slate-800 pb-2">Contenido Sugerido</h3>
+                    {TUTORIAL_TOOLS.map((tool) => {
+                        const toolTutorials = tutorials.filter(t => (t.tool || 'general') === tool.id);
+                        if (toolTutorials.length === 0) return null;
+                        
+                        return (
+                            <div key={tool.id} id={`SEC_TUTORIAL_GROUP_${tool.id}`} className="space-y-3">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-blue-400 opacity-80 block px-1">
+                                    {tool.label}
+                                </span>
+                                <div className="space-y-2">
+                                    {toolTutorials.map((video) => (
+                                        <div 
+                                            key={video.id} 
+                                            id={`BTN_TUTORIAL_PLAY_${video.id}`}
+                                            onClick={() => {
+                                                setSelectedVideo(video);
+                                                if (user?.id) {
+                                                    db.logActivity(user.id, 'VIO_TUTORIAL', { 
+                                                        video_id: video.id,
+                                                        video_title: video.title 
+                                                    });
+                                                }
+                                            }} 
+                                            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                                                selectedVideo.id === video.id 
+                                                    ? 'bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/10' 
+                                                    : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/60'
+                                            }`}
+                                        >
+                                            <h4 className="text-[11px] font-bold text-white">{video.title}</h4>
+                                            {video.description && (
+                                                <p className="text-[9px] text-slate-400 mt-1 line-clamp-1 italic">{video.description}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </aside>
             </main>
         </div>

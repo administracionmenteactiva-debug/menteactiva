@@ -31,6 +31,15 @@ const AVAILABLE_TOOLS = [
     { id: 'Exámenes', label: 'Crea Quiz' }
 ];
 
+const TUTORIAL_TOOLS = [
+    { id: 'general', label: 'Inicio Maestro / General' },
+    { id: 'educruci', label: 'EduCruci (Crucigramas)' },
+    { id: 'educrucimate', label: 'EduCrucimate (Crucimate)' },
+    { id: 'edusopa', label: 'EduSopa (Sopa de Letras)' },
+    { id: 'edusudoku', label: 'EduSudoku (Sudoku)' },
+    { id: 'eduquiz', label: 'EduQuiz (Crea Quiz)' }
+];
+
 const AdminView = () => {
     const { globalVars, logout, updateGlobalVars, user, getPeruDate } = useAuth();
     const navigate = useNavigate();
@@ -1887,6 +1896,12 @@ const AdminView = () => {
                                         if (!title) return;
                                         const url = window.prompt("🔗 ENLACE DE YOUTUBE (Embed o Link normal):");
                                         if (!url) return;
+
+                                        const toolList = TUTORIAL_TOOLS.map((t, idx) => `${idx + 1}. ${t.label}`).join('\n');
+                                        const toolIndexStr = window.prompt(`🛠️ SELECCIONE LA HERRAMIENTA:\n\n${toolList}\n\nIngrese el número correspondiente:`, "1");
+                                        if (!toolIndexStr) return;
+                                        const toolIndex = parseInt(toolIndexStr) - 1;
+                                        const selectedTool = TUTORIAL_TOOLS[toolIndex] ? TUTORIAL_TOOLS[toolIndex].id : 'general';
                                         
                                         const videoId = url.includes('embed/') ? url.split('embed/')[1].split('?')[0] : (url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop());
                                         const cleanUrl = `https://www.youtube.com/embed/${videoId}`;
@@ -1895,6 +1910,7 @@ const AdminView = () => {
                                             id: 't_' + Date.now(),
                                             title: title,
                                             url: cleanUrl,
+                                            tool: selectedTool,
                                             duration: '00:00',
                                             date: new Date().toLocaleDateString('es-PE'),
                                             description: 'Nuevo tutorial añadido desde el panel de administración.'
@@ -1905,6 +1921,7 @@ const AdminView = () => {
                                                 id: 't1', 
                                                 title: 'EduCruci: Tutorial de Inicio a Fin', 
                                                 url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                                tool: 'educruci',
                                                 duration: '01:29', 
                                                 date: '19 Abr 2026',
                                                 description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
@@ -1920,93 +1937,196 @@ const AdminView = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6">
-                            {(globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
-                                { 
-                                    id: 't1', 
-                                    title: 'EduCruci: Tutorial de Inicio a Fin', 
-                                    url: 'https://www.youtube.com/embed/9forXItrWGo',
-                                    duration: '01:29', 
-                                    date: '19 Abr 2026',
-                                    description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
-                                }
-                            ]).map((tutorial, index) => (
-                                <div key={tutorial.id} className="bg-[var(--edu-bg-card)] rounded-[2rem] border border-[var(--edu-border)] p-8 shadow-xl flex flex-col md:flex-row gap-8 items-center group hover:border-[var(--edu-accent)]/30 transition-all">
-                                    <div className="w-full md:w-64 aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative">
-                                        {/* Blindaje de Doble Capa Mini */}
-                                        <div className="absolute inset-0 z-[100] pointer-events-none">
-                                            <div className="absolute top-0 left-0 w-full h-[50px] bg-[#00000001] pointer-events-auto cursor-not-allowed"></div>
-                                            <div className="absolute bottom-[10px] left-0 w-full h-[45px] bg-[#00000001] pointer-events-auto cursor-not-allowed"></div>
-                                        </div>
-                                        <iframe width="100%" height="100%" src={`${tutorial.url}${tutorial.url.includes('?') ? '&' : '?'}modestbranding=1&rel=0&showinfo=0&controls=1&fs=0`} title={tutorial.title} frameBorder="0"></iframe>
-                                    </div>
-                                    
-                                    <div className="flex-1 space-y-4">
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <h3 className="text-lg font-black text-white uppercase tracking-tight">{tutorial.title}</h3>
-                                                <p className="text-[10px] text-[var(--edu-text-muted)] mt-1 italic">{tutorial.description}</p>
-                                            </div>
-                                            <div className="bg-[var(--edu-accent)]/10 text-[var(--edu-accent)] px-3 py-1 rounded-full text-[10px] font-black uppercase">
-                                                {tutorial.duration}
-                                            </div>
+                        <div className="space-y-12">
+                            {TUTORIAL_TOOLS.map((toolGroup) => {
+                                const toolTutorials = (globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
+                                    { 
+                                        id: 't1', 
+                                        title: 'EduCruci: Tutorial de Inicio a Fin', 
+                                        url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                        tool: 'educruci',
+                                        duration: '01:29', 
+                                        date: '19 Abr 2026',
+                                        description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
+                                    }
+                                ]).filter(t => (t.tool || 'general') === toolGroup.id);
+
+                                return (
+                                    <div key={toolGroup.id} className="space-y-4">
+                                        <div className="flex items-center gap-3 border-b border-[var(--edu-border)]/40 pb-2">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-[var(--edu-accent)]"></div>
+                                            <h2 className="text-sm font-black text-white uppercase tracking-widest">
+                                                {toolGroup.label}
+                                            </h2>
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--edu-bg-card)] border border-[var(--edu-border)] text-[var(--edu-text-muted)] font-black">
+                                                {toolTutorials.length} {toolTutorials.length === 1 ? 'video' : 'videos'}
+                                            </span>
                                         </div>
 
-                                        <div className="flex flex-wrap gap-3">
-                                            <button 
-                                                onClick={() => {
-                                                    const newUrl = window.prompt("🔗 EDITAR ENLACE DE YOUTUBE\nIngrese el enlace de 'Insertar' (embed) o el ID del video:", tutorial.url);
-                                                    if (newUrl) {
-                                                        const videoId = newUrl.includes('embed/') ? newUrl.split('embed/')[1].split('?')[0] : (newUrl.includes('v=') ? newUrl.split('v=')[1].split('&')[0] : newUrl.split('/').pop());
-                                                        const cleanUrl = `https://www.youtube.com/embed/${videoId}`;
-                                                        const updatedTutorials = (globalVars.META_TUTORIALS || []).length > 0 ? [...globalVars.META_TUTORIALS] : [{...tutorial}];
-                                                        updatedTutorials[index] = { ...updatedTutorials[index], url: cleanUrl };
-                                                        updateGlobalVars({ META_TUTORIALS: updatedTutorials });
-                                                    }
-                                                }}
-                                                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-xl text-[10px] font-black uppercase hover:bg-[var(--edu-accent)] hover:text-white transition-all active:scale-95"
-                                            >
-                                                <Video size={14} /> Cambiar Video
-                                            </button>
-                                            <button 
-                                                onClick={() => {
-                                                    const newTitle = window.prompt("📝 EDITAR TÍTULO", tutorial.title);
-                                                    if (newTitle) {
-                                                        const updatedTutorials = (globalVars.META_TUTORIALS || []).length > 0 ? [...globalVars.META_TUTORIALS] : [{...tutorial}];
-                                                        updatedTutorials[index] = { ...updatedTutorials[index], title: newTitle };
-                                                        updateGlobalVars({ META_TUTORIALS: updatedTutorials });
-                                                    }
-                                                }}
-                                                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-xl text-[10px] font-black uppercase hover:bg-[var(--edu-accent)] hover:text-white transition-all active:scale-95"
-                                            >
-                                                <ListChecks size={14} /> Editar Título
-                                            </button>
-                                            <button 
-                                                onClick={() => {
-                                                    if (window.confirm("🗑️ ¿ESTÁS SEGURO?\nEl tutorial será eliminado permanentemente del sistema.")) {
-                                                        const currentTutorials = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
-                                                            { 
-                                                                id: 't1', 
-                                                                title: 'EduCruci: Tutorial de Inicio a Fin', 
-                                                                url: 'https://www.youtube.com/embed/9forXItrWGo',
-                                                                duration: '01:29', 
-                                                                date: '19 Abr 2026',
-                                                                description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
-                                                            }
-                                                        ];
-                                                        const updatedTutorials = currentTutorials.filter(t => t.id !== tutorial.id);
-                                                        updateGlobalVars({ META_TUTORIALS: updatedTutorials });
-                                                    }
-                                                }}
-                                                className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black uppercase hover:bg-red-500 hover:text-white transition-all active:scale-95"
-                                                title="Eliminar Tutorial"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
+                                        {toolTutorials.length === 0 ? (
+                                            <div className="p-8 rounded-[2rem] border border-dashed border-[var(--edu-border)] text-center">
+                                                <p className="text-[10px] text-[var(--edu-text-muted)] font-black uppercase tracking-wider">No hay tutoriales asignados a esta herramienta</p>
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 gap-6">
+                                                {toolTutorials.map((tutorial) => {
+                                                    const allTutorials = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
+                                                        { 
+                                                            id: 't1', 
+                                                            title: 'EduCruci: Tutorial de Inicio a Fin', 
+                                                            url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                                            tool: 'educruci',
+                                                            duration: '01:29', 
+                                                            date: '19 Abr 2026',
+                                                            description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
+                                                        }
+                                                    ];
+                                                    const originalIndex = allTutorials.findIndex(t => t.id === tutorial.id);
+                                                    
+                                                    return (
+                                                        <div key={tutorial.id} className="bg-[var(--edu-bg-card)] rounded-[2rem] border border-[var(--edu-border)] p-8 shadow-xl flex flex-col md:flex-row gap-8 items-center group hover:border-[var(--edu-accent)]/30 transition-all">
+                                                            <div className="w-full md:w-64 aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative flex-shrink-0">
+                                                                {/* Blindaje de Doble Capa Mini */}
+                                                                <div className="absolute inset-0 z-[100] pointer-events-none">
+                                                                    <div className="absolute top-0 left-0 w-full h-[50px] bg-[#00000001] pointer-events-auto cursor-not-allowed"></div>
+                                                                    <div className="absolute bottom-[10px] left-0 w-full h-[45px] bg-[#00000001] pointer-events-auto cursor-not-allowed"></div>
+                                                                </div>
+                                                                <iframe width="100%" height="100%" src={`${tutorial.url}${tutorial.url.includes('?') ? '&' : '?'}modestbranding=1&rel=0&showinfo=0&controls=1&fs=0`} title={tutorial.title} frameBorder="0"></iframe>
+                                                            </div>
+                                                            
+                                                            <div className="flex-1 space-y-4 w-full">
+                                                                <div className="flex items-start justify-between gap-4">
+                                                                    <div>
+                                                                        <h3 className="text-lg font-black text-white uppercase tracking-tight">{tutorial.title}</h3>
+                                                                        <p className="text-[10px] text-[var(--edu-text-muted)] mt-1 italic">{tutorial.description}</p>
+                                                                    </div>
+                                                                    <div className="bg-[var(--edu-accent)]/10 text-[var(--edu-accent)] px-3 py-1 rounded-full text-[10px] font-black uppercase flex-shrink-0">
+                                                                        {tutorial.duration}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="flex flex-wrap gap-4 items-center">
+                                                                    <div className="flex flex-col gap-1 min-w-[160px]">
+                                                                        <span className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] tracking-wider">Herramienta:</span>
+                                                                        <select
+                                                                            id={`SELECT_TUTORIAL_TOOL_${tutorial.id}`}
+                                                                            value={tutorial.tool || 'general'}
+                                                                            onChange={(e) => {
+                                                                                const newTool = e.target.value;
+                                                                                const currentTuts = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
+                                                                                    { 
+                                                                                        id: 't1', 
+                                                                                        title: 'EduCruci: Tutorial de Inicio a Fin', 
+                                                                                        url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                                                                        tool: 'educruci',
+                                                                                        duration: '01:29', 
+                                                                                        date: '19 Abr 2026',
+                                                                                        description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
+                                                                                    }
+                                                                                ];
+                                                                                const updatedTutorials = [...currentTuts];
+                                                                                if (originalIndex !== -1) {
+                                                                                    updatedTutorials[originalIndex] = { ...updatedTutorials[originalIndex], tool: newTool };
+                                                                                    updateGlobalVars({ META_TUTORIALS: updatedTutorials });
+                                                                                }
+                                                                            }}
+                                                                            className="bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-xl px-3 py-2 text-[10px] font-bold text-white uppercase tracking-wider focus:outline-none focus:border-[var(--edu-accent)] transition-all cursor-pointer"
+                                                                        >
+                                                                            {TUTORIAL_TOOLS.map(t => (
+                                                                                <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.label}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <div className="flex flex-wrap gap-2 mt-auto pt-4 md:pt-0">
+                                                                        <button 
+                                                                            onClick={() => {
+                                                                                const newUrl = window.prompt("🔗 EDITAR ENLACE DE YOUTUBE\nIngrese el enlace de 'Insertar' (embed) o el ID del video:", tutorial.url);
+                                                                                if (newUrl) {
+                                                                                    const videoId = newUrl.includes('embed/') ? newUrl.split('embed/')[1].split('?')[0] : (newUrl.includes('v=') ? newUrl.split('v=')[1].split('&')[0] : newUrl.split('/').pop());
+                                                                                    const cleanUrl = `https://www.youtube.com/embed/${videoId}`;
+                                                                                    const currentTuts = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
+                                                                                        { 
+                                                                                            id: 't1', 
+                                                                                            title: 'EduCruci: Tutorial de Inicio a Fin', 
+                                                                                            url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                                                                            tool: 'educruci',
+                                                                                            duration: '01:29', 
+                                                                                            date: '19 Abr 2026',
+                                                                                            description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
+                                                                                        }
+                                                                                    ];
+                                                                                    const updatedTutorials = [...currentTuts];
+                                                                                    if (originalIndex !== -1) {
+                                                                                        updatedTutorials[originalIndex] = { ...updatedTutorials[originalIndex], url: cleanUrl };
+                                                                                        updateGlobalVars({ META_TUTORIALS: updatedTutorials });
+                                                                                    }
+                                                                                }
+                                                                            }}
+                                                                            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-xl text-[10px] font-black uppercase hover:bg-[var(--edu-accent)] hover:text-white transition-all active:scale-95"
+                                                                        >
+                                                                            <Video size={14} /> Cambiar Video
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => {
+                                                                                const newTitle = window.prompt("📝 EDITAR TÍTULO", tutorial.title);
+                                                                                if (newTitle) {
+                                                                                    const currentTuts = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
+                                                                                        { 
+                                                                                            id: 't1', 
+                                                                                            title: 'EduCruci: Tutorial de Inicio a Fin', 
+                                                                                            url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                                                                            tool: 'educruci',
+                                                                                            duration: '01:29', 
+                                                                                            date: '19 Abr 2026',
+                                                                                            description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
+                                                                                        }
+                                                                                    ];
+                                                                                    const updatedTutorials = [...currentTuts];
+                                                                                    if (originalIndex !== -1) {
+                                                                                        updatedTutorials[originalIndex] = { ...updatedTutorials[originalIndex], title: newTitle };
+                                                                                        updateGlobalVars({ META_TUTORIALS: updatedTutorials });
+                                                                                    }
+                                                                                }
+                                                                            }}
+                                                                            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--edu-bg)] border border-[var(--edu-border)] rounded-xl text-[10px] font-black uppercase hover:bg-[var(--edu-accent)] hover:text-white transition-all active:scale-95"
+                                                                        >
+                                                                            <ListChecks size={14} /> Editar Título
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => {
+                                                                                if (window.confirm("🗑️ ¿ESTÁS SEGURO?\nEl tutorial será eliminado permanentemente del sistema.")) {
+                                                                                    const currentTuts = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [
+                                                                                        { 
+                                                                                            id: 't1', 
+                                                                                            title: 'EduCruci: Tutorial de Inicio a Fin', 
+                                                                                            url: 'https://www.youtube.com/embed/9forXItrWGo',
+                                                                                            tool: 'educruci',
+                                                                                            duration: '01:29', 
+                                                                                            date: '19 Abr 2026',
+                                                                                            description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
+                                                                                        }
+                                                                                    ];
+                                                                                    const updatedTutorials = currentTuts.filter(t => t.id !== tutorial.id);
+                                                                                    updateGlobalVars({ META_TUTORIALS: updatedTutorials });
+                                                                                }
+                                                                            }}
+                                                                            className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black uppercase hover:bg-red-500 hover:text-white transition-all active:scale-95"
+                                                                            title="Eliminar Tutorial"
+                                                                        >
+                                                                            <Trash2 size={14} />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}
