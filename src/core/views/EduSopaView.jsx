@@ -1256,7 +1256,7 @@ Solo entrega lo solicitado, sin introducciones ni saludos.`;
                                     <ImageIcon size={14} /> {fondo ? "✅ Imagen Cargada" : "📁 Seleccionar Imagen"}
                                 </button>
                                 <input type="file" ref={fondoInputRef} onChange={handleFondoChange} className="hidden" accept="image/*" />
-                                {modo === 'crucigrama' && (
+                                {(modo === 'crucigrama' || modo === 'sopa') && (
                                     <label className="flex items-center gap-2 pt-3 cursor-pointer group w-max">
                                         <div className="relative flex items-center justify-center w-4 h-4">
                                             <input 
