@@ -281,7 +281,7 @@ const EduSudokuView = () => {
             if (fondo) {
                 try {
                     doc.saveGraphicsState();
-                    doc.setGState(new doc.GState({ opacity: 0.18 }));
+                    doc.setGState(new doc.GState({ opacity: fondoCasillasBlanco ? 1.0 : 0.18 }));
                     doc.addImage(fondo, 'JPEG', 15, 42.5, 180, 220, undefined, 'FAST');
                 } catch (e) { 
                     console.error("Fondo PDF:", e); 
@@ -346,7 +346,12 @@ const EduSudokuView = () => {
                 // Borde exterior grueso
                 doc.setDrawColor(0);
                 doc.setLineWidth(1.5);
-                doc.rect(offsetX, offsetY, gridW, gridH, 'S');
+                if (fondoCasillasBlanco) {
+                    doc.setFillColor(255, 255, 255);
+                    doc.rect(offsetX, offsetY, gridW, gridH, 'FD');
+                } else {
+                    doc.rect(offsetX, offsetY, gridW, gridH, 'S');
+                }
 
                 // GRILLA VECTORIAL
                 for (let r = 0; r < size; r++) {
@@ -449,11 +454,11 @@ const EduSudokuView = () => {
             <div className="relative flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ width: '100%', height: `${containerSize}px` }}>
                 {fondo && (
                     <div 
-                        className={`absolute inset-0 bg-center bg-no-repeat bg-contain opacity-[0.18] pointer-events-none`}
+                        className={`absolute inset-0 bg-center bg-no-repeat bg-contain ${fondoCasillasBlanco ? 'opacity-100' : 'opacity-[0.18]'} pointer-events-none`}
                         style={{ backgroundImage: `url(${fondo})` }}
                     />
                 )}
-                <div className="relative z-10 bg-white shadow-sm border-[4px] border-black p-0" style={{lineHeight: 0}}>
+                <div className={`relative z-10 ${fondoCasillasBlanco ? 'bg-white' : 'bg-transparent'} shadow-sm border-[4px] border-black p-0`} style={{lineHeight: 0}}>
                     <table className="border-collapse border-spacing-0 bg-transparent border-none m-0 p-0">
                         <tbody>
                             {Array.from({ length: activeRows }).map((_, r) => {
@@ -878,6 +883,21 @@ const EduSudokuView = () => {
                                     <ImageIcon size={14} /> {fondo ? "✅ Imagen Cargada" : "📁 Seleccionar Imagen"}
                                 </button>
                                 <input type="file" ref={fondoInputRef} onChange={handleFondoChange} className="hidden" accept="image/*" />
+                                
+                                <label className="flex items-center gap-2 pt-3 cursor-pointer group w-max">
+                                    <div className="relative flex items-center justify-center w-4 h-4">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={fondoCasillasBlanco} 
+                                            onChange={(e) => setFondoCasillasBlanco(e.target.checked)}
+                                            className="peer appearance-none w-4 h-4 border border-slate-600 rounded bg-[#0f172a] checked:bg-blue-500 checked:border-blue-500 transition-all cursor-pointer"
+                                        />
+                                        <Sparkles className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                    </div>
+                                    <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-slate-300 transition-colors">
+                                        Cuadros blancos (Imagen nítida)
+                                    </span>
+                                </label>
                                 
                                 <label className="flex items-center gap-2 pt-3 cursor-pointer group w-max">
                                     <div className="relative flex items-center justify-center w-4 h-4">
