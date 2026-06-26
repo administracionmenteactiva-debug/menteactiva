@@ -6,7 +6,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import html2canvas from 'html2canvas';
 import { useAuth } from '../context/AuthContext.jsx';
-import { ChevronLeft, Download, FileText, Type, Image as ImageIcon, Sparkles, MessageSquare, Play, Trash2, Settings, LogOut, Clock } from 'lucide-react';
+import { ChevronLeft, Download, FileText, Type, MessageSquare, Play, Trash2, Settings, LogOut, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../services/databaseService';
 import logoFinal from '../../assets/Logo_cruci+pupi-removebg-preview.png';
@@ -878,28 +878,7 @@ const EduSudokuView = () => {
                         <div>
                             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-800 pb-2">Personalización</h3>
                             <div className="space-y-1">
-                                <label className="text-[10px] uppercase font-black text-slate-500 ml-1">Imagen de Fondo</label>
-                                <button onClick={() => fondoInputRef.current.click()} className="w-full py-3 border border-dashed border-slate-700 rounded-xl text-[10px] font-bold text-slate-400 hover:border-blue-500/50 hover:bg-slate-800/50 flex items-center justify-center gap-2 transition-all">
-                                    <ImageIcon size={14} /> {fondo ? "✅ Imagen Cargada" : "📁 Seleccionar Imagen"}
-                                </button>
-                                <input type="file" ref={fondoInputRef} onChange={handleFondoChange} className="hidden" accept="image/*" />
-                                
-                                <label className="flex items-center gap-2 pt-3 cursor-pointer group w-max">
-                                    <div className="relative flex items-center justify-center w-4 h-4">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={fondoCasillasBlanco} 
-                                            onChange={(e) => setFondoCasillasBlanco(e.target.checked)}
-                                            className="peer appearance-none w-4 h-4 border border-slate-600 rounded bg-[#0f172a] checked:bg-blue-500 checked:border-blue-500 transition-all cursor-pointer"
-                                        />
-                                        <Sparkles className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
-                                    </div>
-                                    <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-slate-300 transition-colors">
-                                        Cuadros blancos (Imagen nítida)
-                                    </span>
-                                </label>
-                                
-                                <label className="flex items-center gap-2 pt-3 cursor-pointer group w-max">
+                                <label className="flex items-center gap-2 pt-1 cursor-pointer group w-max">
                                     <div className="relative flex items-center justify-center w-4 h-4">
                                         <input 
                                             type="checkbox" 
