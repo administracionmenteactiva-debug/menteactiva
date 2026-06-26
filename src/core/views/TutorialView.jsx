@@ -8,7 +8,7 @@ import { db } from '../services/databaseService.js';
 const TUTORIAL_TOOLS = [
     { id: 'educruci', label: 'EduCruci (Crucigramas)' },
     { id: 'educrucimate', label: 'EduCrucimate (Crucimate)' },
-    { id: 'edusopa', label: 'EduSopa (Sopa de Letras)' },
+    { id: 'edusopa', label: 'EduPupiletras (Sopa de Letras)' },
     { id: 'edusudoku', label: 'EduSudoku (Sudoku)' },
     { id: 'eduquiz', label: 'EduQuiz (Crea Quiz)' }
 ];
