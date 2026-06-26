@@ -487,8 +487,8 @@ const AdminView = () => {
             sections.push({ id: 'AUDIT', label: 'Auditoría', icon: <FileSearch size={18} />, desc: 'Logs de actividad', color: '#10b981' });
         }
 
-        // Tareas críticas exclusivas de Admin General
-        if (isGeneral) {
+        // Tareas críticas compartidas por Admin General y Auxiliar
+        if (isGeneral || isAux) {
             sections.push({ id: 'EMAIL', label: 'Correo', icon: <Mail size={18} />, desc: 'Configurar bienvenida', color: '#f59e0b' });
             sections.push({ id: 'BULK_IMPORT', label: 'MIGRACIÓN', icon: <Sparkles size={18} />, desc: 'Importación masiva', color: '#8b5cf6' });
         }
@@ -638,7 +638,7 @@ const AdminView = () => {
         
         return users.filter(u => {
             // 1. Filtro de Rol según permisos
-            const hasPermission = isGeneral || u.role === 'user';
+            const hasPermission = isGeneral || isAux || u.role === 'user';
             if (!hasPermission) return false;
 
             // 2. Filtro de Nombre/Email
@@ -1549,8 +1549,8 @@ const AdminView = () => {
                                                             onClick={async () => {
                                                                 const creator = globalVars.META_USERS?.find(adm => adm.username === u.createdBy || adm.id === u.createdBy);
                                                                 const currentVal = u.whatsappVentas || creator?.whatsappVentas || '';
-                                                                if (!isGeneral) {
-                                                                    alert("Solo el Administrador General puede modificar números de contacto.");
+                                                                if (!isGeneral && !isAux) {
+                                                                    alert("Solo el Administrador General o Auxiliar puede modificar números de contacto.");
                                                                     return;
                                                                 }
                                                                 const newNum = window.prompt(`📱 EDITAR WHATSAPP DE VENTAS\n\nUsuario: ${u.fullName}\nCreador: ${u.createdBy || 'Sistema'}\n\nEste número se mostrará al finalizar la prueba.`, currentVal);
