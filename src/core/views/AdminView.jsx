@@ -32,7 +32,6 @@ const AVAILABLE_TOOLS = [
 ];
 
 const TUTORIAL_TOOLS = [
-    { id: 'general', label: 'Inicio Maestro / General' },
     { id: 'educruci', label: 'EduCruci (Crucigramas)' },
     { id: 'educrucimate', label: 'EduCrucimate (Crucimate)' },
     { id: 'edusopa', label: 'EduSopa (Sopa de Letras)' },
@@ -1949,7 +1948,10 @@ const AdminView = () => {
                                         date: '19 Abr 2026',
                                         description: 'Mira el video, es corto, y con él entenderás claramente cómo usar la aplicación.'
                                     }
-                                ]).filter(t => (t.tool || 'general') === toolGroup.id);
+                                ]).filter(t => {
+                                    const tTool = t.tool === 'general' || !t.tool ? 'educruci' : t.tool;
+                                    return tTool === toolGroup.id;
+                                });
 
                                 return (
                                     <div key={toolGroup.id} className="space-y-4">
@@ -2010,7 +2012,7 @@ const AdminView = () => {
                                                                         <span className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] tracking-wider">Herramienta:</span>
                                                                         <select
                                                                             id={`SELECT_TUTORIAL_TOOL_${tutorial.id}`}
-                                                                            value={tutorial.tool || 'general'}
+                                                                            value={tutorial.tool === 'general' || !tutorial.tool ? 'educruci' : tutorial.tool}
                                                                             onChange={(e) => {
                                                                                 const newTool = e.target.value;
                                                                                 const currentTuts = globalVars.META_TUTORIALS?.length > 0 ? globalVars.META_TUTORIALS : [

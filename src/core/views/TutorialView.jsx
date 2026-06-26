@@ -6,7 +6,6 @@ import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
 import { db } from '../services/databaseService.js';
 
 const TUTORIAL_TOOLS = [
-    { id: 'general', label: 'Inicio Maestro / General' },
     { id: 'educruci', label: 'EduCruci (Crucigramas)' },
     { id: 'educrucimate', label: 'EduCrucimate (Crucimate)' },
     { id: 'edusopa', label: 'EduSopa (Sopa de Letras)' },
@@ -86,7 +85,10 @@ const TutorialView = () => {
                 <aside className="flex-1 min-w-[380px] bg-[#1e293b]/30 backdrop-blur-md border-l border-slate-800 p-4 overflow-y-auto premium-scrollbar space-y-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-white border-b border-slate-800 pb-2">Contenido Sugerido</h3>
                     {TUTORIAL_TOOLS.map((tool) => {
-                        const toolTutorials = tutorials.filter(t => (t.tool || 'general') === tool.id);
+                        const toolTutorials = tutorials.filter(t => {
+                            const tTool = t.tool === 'general' || !t.tool ? 'educruci' : t.tool;
+                            return tTool === tool.id;
+                        });
                         if (toolTutorials.length === 0) return null;
                         
                         return (
