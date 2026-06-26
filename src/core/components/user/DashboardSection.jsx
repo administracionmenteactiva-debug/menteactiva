@@ -81,7 +81,7 @@ const DashboardSection = () => {
         },
         {
             title: "CRUCIMATE",
-            dbName: "Crucigramas",
+            dbName: "Crucimate",
             icon: <img src={crucimateIcon} alt="Crucimate" className="w-20 h-20 object-contain drop-shadow-lg" />,
             color: "#e11d48",
             bg: "bg-rose-500",
@@ -113,7 +113,7 @@ const DashboardSection = () => {
             color: "#10b981", // Emerald green color
             bg: "bg-emerald-500",
             hover: "hover:shadow-emerald-500/20 hover:border-emerald-500/50",
-            path: "/examenes"
+            path: "/quiz"
         }
     ];
 

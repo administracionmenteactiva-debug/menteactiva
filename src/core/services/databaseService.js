@@ -414,5 +414,54 @@ export const db = {
         
         const link = fallbackData?.walink || (fallbackData?.whatsapp_ventas ? `https://wa.me/51${fallbackData.whatsapp_ventas}` : null);
         return link || 'https://wa.me/51993125547';
+    },
+
+    /**
+     * Obtiene estadísticas del uso de almacenamiento de bancos de preguntas para el administrador.
+     */
+    async fetchStorageStats() {
+        if (!supabase) return { total: 0, inactive: 0 };
+        
+        const { data, error } = await supabase
+            .from('system_settings')
+            .select('key, updated_at')
+            .like('key', 'quiz_interactivo_slots_%');
+            
+        if (error) throw error;
+        
+        const limitDate = new Date();
+        limitDate.setDate(limitDate.getDate() - 14);
+        
+        let total = 0;
+        let inactive = 0;
+        
+        data.forEach(row => {
+            total++;
+            const updatedAt = new Date(row.updated_at);
+            if (updatedAt < limitDate) {
+                inactive++;
+            }
+        });
+        
+        return { total, inactive };
+    },
+
+    /**
+     * Elimina bancos de preguntas de cuentas inactivas por más de 14 días.
+     */
+    async cleanupOldStorage() {
+        if (!supabase) return false;
+        
+        const limitDate = new Date();
+        limitDate.setDate(limitDate.getDate() - 14);
+        
+        const { error } = await supabase
+            .from('system_settings')
+            .delete()
+            .like('key', 'quiz_interactivo_slots_%')
+            .lt('updated_at', limitDate.toISOString());
+            
+        if (error) throw error;
+        return true;
     }
 };

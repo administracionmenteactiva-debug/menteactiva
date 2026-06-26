@@ -23,6 +23,14 @@ const AreaChip = ({ area, selected, onToggle }) => (
     </label>
 );
 
+const AVAILABLE_TOOLS = [
+    { id: 'Crucigramas', label: 'Crucigramas' },
+    { id: 'Crucimate', label: 'CruciMate' },
+    { id: 'Sopa de Letras', label: 'Sopa de Letras' },
+    { id: 'Sudoku', label: 'Sudoku' },
+    { id: 'Exámenes', label: 'Crea Quiz' }
+];
+
 const AdminView = () => {
     const { globalVars, logout, updateGlobalVars, user, getPeruDate } = useAuth();
     const navigate = useNavigate();
@@ -125,9 +133,48 @@ const AdminView = () => {
         }
     };
 
-    // Eliminamos la carga automática para respetar la solicitud del usuario
+    // Estados para Gestión de Almacenamiento
+    const [storageStats, setStorageStats] = React.useState({ total: 0, inactive: 0 });
+    const [isCleaningStorage, setIsCleaningStorage] = React.useState(false);
+    const [loadingStorageStats, setLoadingStorageStats] = React.useState(false);
+
+    // Función para sincronizar estadísticas de almacenamiento de Quiz
+    const handleSyncStorageStats = async () => {
+        setLoadingStorageStats(true);
+        try {
+            const stats = await db.fetchStorageStats();
+            setStorageStats(stats);
+        } catch (err) {
+            console.error("Error storage stats:", err);
+        } finally {
+            setLoadingStorageStats(false);
+        }
+    };
+
+    // Función para limpiar bancos inactivos
+    const handleCleanupStorage = async () => {
+        if (window.confirm("🗑️ ¿CONFIRMAR LIMPIEZA?\nSe eliminarán permanentemente los bancos de preguntas de todas las cuentas inactivas por más de 14 días.\n\nEsta acción es irreversible.")) {
+            setIsCleaningStorage(true);
+            try {
+                const success = await db.cleanupOldStorage();
+                if (success) {
+                    alert("✅ ¡Limpieza completada! Se liberó el espacio de cuentas inactivas.");
+                    await handleSyncStorageStats();
+                }
+            } catch (err) {
+                console.error("Error cleaning storage:", err);
+                alert("Error al limpiar almacenamiento: " + err.message);
+            } finally {
+                setIsCleaningStorage(false);
+            }
+        }
+    };
+
+    // Carga automática de estadísticas de almacenamiento al entrar al módulo de Auditoría
     React.useEffect(() => {
-        // No cargamos automáticamente al entrar
+        if (activeModule === 'AUDIT') {
+            handleSyncStorageStats();
+        }
     }, [activeModule]);
 
     // Reloj en tiempo real y Auto-Sync (Hallazgo #1: Mantener panel fresco)
@@ -156,7 +203,7 @@ const AdminView = () => {
         scheduledTime: '',
         whatsappVentas: '',
         walink: '',
-        allowedTools: [],
+        allowedTools: AVAILABLE_TOOLS.map(t => t.id),
         allowedLevels: [],
         allowedAreas: []
     });
@@ -241,7 +288,7 @@ const AdminView = () => {
                 }
             }
             
-            setNewUser({ email: '', fullName: 'Docente', role: 'user', plan: 'mensual', days: 30, scheduledTime: '', whatsappVentas: '', walink: '', allowedTools: [], allowedLevels: [], allowedAreas: [] });
+            setNewUser({ email: '', fullName: 'Docente', role: 'user', plan: 'mensual', days: 30, scheduledTime: '', whatsappVentas: '', walink: '', allowedTools: AVAILABLE_TOOLS.map(t => t.id), allowedLevels: [], allowedAreas: [] });
             setShowCreateForm(false);
         } catch (err) {
             console.error("❌ ERROR CRÍTICO AL CREAR USUARIO:", err);
@@ -1189,22 +1236,22 @@ const AdminView = () => {
                                     {/* SELECCIÓN DE HERRAMIENTAS PERMITIDAS */}
                                     <div className="lg:col-span-4 space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
                                         <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Herramientas Permitidas</label>
-                                        <div className="flex gap-4">
-                                            {['Crucigramas', 'Sudoku', 'Sopa de Letras'].map(tool => (
-                                                <label key={tool} className="flex items-center gap-2 cursor-pointer group">
+                                        <div className="flex flex-wrap gap-4">
+                                            {AVAILABLE_TOOLS.map(tool => (
+                                                <label key={tool.id} className="flex items-center gap-2 cursor-pointer group">
                                                     <input 
                                                         type="checkbox"
-                                                        checked={newUser.allowedTools.includes(tool)}
+                                                        checked={newUser.allowedTools.includes(tool.id)}
                                                         onChange={(e) => {
                                                             const isChecked = e.target.checked;
                                                             const tools = isChecked 
-                                                                ? [...newUser.allowedTools, tool]
-                                                                : newUser.allowedTools.filter(t => t !== tool);
+                                                                ? [...newUser.allowedTools, tool.id]
+                                                                : newUser.allowedTools.filter(t => t !== tool.id);
                                                             setNewUser({...newUser, allowedTools: tools});
                                                         }}
                                                         className="w-4 h-4 rounded border-[var(--edu-border)] accent-[var(--edu-logo-blue)]"
                                                     />
-                                                    <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{tool}</span>
+                                                    <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{tool.label}</span>
                                                 </label>
                                             ))}
                                         </div>
@@ -2147,6 +2194,44 @@ const AdminView = () => {
                             </div>
                         </div>
 
+                        {/* GESTIÓN DE ALMACENAMIENTO DE BANCOS DE QUIZ */}
+                        <div className="bg-[var(--edu-bg-card)] rounded-[2rem] border border-[var(--edu-border)] p-6 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="space-y-1.5 max-w-xl">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                    <h2 className="text-xs font-black uppercase tracking-wider text-[var(--edu-text-main)]">Gestión de Almacenamiento (Crea Quiz)</h2>
+                                </div>
+                                <p className="text-[10px] text-[var(--edu-text-muted)] leading-relaxed">
+                                    Cada usuario puede almacenar hasta 2 bancos de preguntas de forma persistente. 
+                                    Para optimizar la base de datos, puedes eliminar de forma segura los bancos de cuentas que llevan inactivas por más de 14 días.
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-6 bg-[var(--edu-bg-sidebar)]/30 rounded-2xl p-4 border border-[var(--edu-border)]/50 shrink-0">
+                                <div className="text-center px-2">
+                                    <span className="text-[9px] uppercase font-black text-[var(--edu-text-muted)] block tracking-wider">Bancos Totales</span>
+                                    <span className="text-lg font-black text-[var(--edu-logo-blue)]">
+                                        {loadingStorageStats ? '...' : storageStats.total}
+                                    </span>
+                                </div>
+                                <div className="w-px h-8 bg-[var(--edu-border)]"></div>
+                                <div className="text-center px-2">
+                                    <span className="text-[9px] uppercase font-black text-[var(--edu-text-muted)] block tracking-wider">Inactivos (+14 días)</span>
+                                    <span className="text-lg font-black text-amber-500">
+                                        {loadingStorageStats ? '...' : storageStats.inactive}
+                                    </span>
+                                </div>
+                                <div className="w-px h-8 bg-[var(--edu-border)]"></div>
+                                <button
+                                    onClick={handleCleanupStorage}
+                                    disabled={!storageStats.inactive || isCleaningStorage || loadingStorageStats}
+                                    className="px-4 py-2.5 bg-amber-500 hover:brightness-110 disabled:bg-slate-800 disabled:text-slate-650 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 active:scale-95 shadow-md shadow-amber-500/10 cursor-pointer disabled:cursor-not-allowed"
+                                >
+                                    <Trash2 size={12} />
+                                    {isCleaningStorage ? 'Liberando...' : 'Liberar Espacio'}
+                                </button>
+                            </div>
+                        </div>
+
                         {loadingLogs ? (
                             <div className="flex items-center justify-center h-64">
                                 <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full"></div>
@@ -2324,24 +2409,24 @@ const AdminView = () => {
                                             </div>
                                         )}
 
-                                                                                <div className="space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
+                                        <div className="space-y-3 bg-[var(--edu-bg)]/50 p-4 rounded-2xl border border-[var(--edu-border)]">
                                             <label className="text-[9px] font-black uppercase text-[var(--edu-text-muted)] ml-1">Herramientas Permitidas</label>
                                             <div className="flex flex-wrap gap-4 mt-1">
-                                                {['Crucigramas', 'Sopa de Letras', 'Sudoku'].map(tool => (
-                                                    <label key={`modal-${tool}`} className="flex items-center gap-2 cursor-pointer group">
+                                                {AVAILABLE_TOOLS.map(tool => (
+                                                    <label key={`modal-${tool.id}`} className="flex items-center gap-2 cursor-pointer group">
                                                         <input 
                                                             type="checkbox"
-                                                            checked={modalTools.includes(tool)}
+                                                            checked={modalTools.includes(tool.id)}
                                                             onChange={(e) => {
                                                                 const isChecked = e.target.checked;
                                                                 const tools = isChecked 
-                                                                    ? [...modalTools, tool]
-                                                                    : modalTools.filter(t => t !== tool);
+                                                                    ? [...modalTools, tool.id]
+                                                                    : modalTools.filter(t => t !== tool.id);
                                                                 setModalTools(tools);
                                                             }}
                                                             className="w-4 h-4 rounded border-[var(--edu-border)] accent-[var(--edu-logo-blue)]"
                                                         />
-                                                        <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{tool}</span>
+                                                        <span className="text-xs font-bold group-hover:text-[var(--edu-logo-blue)] transition-colors">{tool.label}</span>
                                                     </label>
                                                 ))}
                                             </div>

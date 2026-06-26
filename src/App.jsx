@@ -10,7 +10,7 @@ import EduCruciView from './core/views/EduCruciView.jsx';
 import EduCrucimateView from './core/views/EduCrucimateView.jsx';
 import EduSopaView from './core/views/EduSopaView.jsx';
 import EduSudokuView from './core/views/EduSudokuView.jsx';
-import EduExamenView from './core/views/EduExamenView.jsx';
+import EduQuizInteractivoView from './core/views/EduQuizInteractivoView.jsx';
 
 function App() {
   return (
@@ -26,7 +26,7 @@ function App() {
           <Route path="/crucimate" element={<EduCrucimateView />} />
           <Route path="/sopadeletras" element={<EduSopaView />} />
           <Route path="/sudoku" element={<EduSudokuView />} />
-          <Route path="/examenes" element={<EduExamenView />} />
+          <Route path="/quiz" element={<EduQuizInteractivoView />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

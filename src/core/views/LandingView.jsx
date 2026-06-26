@@ -7,6 +7,8 @@ import { LayoutGrid, Brain, Sparkles, MonitorOff, GraduationCap, Users, MousePoi
 import iconoSopa from '../../assets/icono_sopa_1.png';
 import iconoCrucigrama from '../../assets/icono_crucigrama-1.png';
 import iconoSudoku from '../../assets/ICONO SUDOKU.PNG';
+import iconoCrucimate from '../../assets/icono_crucimate.png';
+import iconoExamen from '../../assets/icono_examen.png';
 
 const LandingView = () => {
     const navigate = useNavigate();
@@ -140,9 +142,9 @@ const LandingView = () => {
 
             {/* Games Preview Section */}
             <section className="py-12 px-6 bg-white dark:bg-[var(--edu-bg-card)] border-y border-[#e2e8f0] dark:border-[var(--edu-border)]">
-                <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6 justify-center">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-center">
                     {/* Sopa de Letras */}
-                    <div className="flex-1 bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                    <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
                         <div className="w-16 h-16 flex-shrink-0 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
                             <img src={iconoSopa} alt="Sopa de Letras" className="w-full h-full object-contain" />
                         </div>
@@ -153,24 +155,46 @@ const LandingView = () => {
                     </div>
 
                     {/* Crucigrama */}
-                    <div className="flex-1 bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                    <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
                         <div className="w-16 h-16 flex-shrink-0 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
                             <img src={iconoCrucigrama} alt="Crucigrama Colorido" className="w-full h-full object-contain" />
                         </div>
                         <div className="text-left">
-                            <h3 className="text-lg font-black text-[#ea580c] dark:text-orange-400 mb-1 leading-tight">Crucigrama Colorido</h3>
+                            <h3 className="text-lg font-black text-[#ea580c] dark:text-orange-400 mb-1 leading-tight">Crucigrama</h3>
                             <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">¡Tú eliges los temas!</p>
                         </div>
                     </div>
 
                     {/* Sudoku */}
-                    <div className="flex-1 bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                    <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
                         <div className="w-16 h-16 flex-shrink-0 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
                             <img src={iconoSudoku} alt="Sudoku para Niños" className="w-full h-full object-contain" />
                         </div>
                         <div className="text-left">
-                            <h3 className="text-lg font-black text-[#16a34a] dark:text-green-400 mb-1 leading-tight">Sudoku Educativo</h3>
+                            <h3 className="text-lg font-black text-[#16a34a] dark:text-green-400 mb-1 leading-tight">Sudoku</h3>
                             <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">Niveles personalizables.</p>
+                        </div>
+                    </div>
+
+                    {/* CruciMate */}
+                    <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                        <div className="w-16 h-16 flex-shrink-0 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
+                            <img src={iconoCrucimate} alt="CruciMate" className="w-full h-full object-contain" />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="text-lg font-black text-[#dc2626] dark:text-red-400 mb-1 leading-tight">CruciMate</h3>
+                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">Matemáticas divertidas.</p>
+                        </div>
+                    </div>
+
+                    {/* Crea Quiz */}
+                    <div className="bg-white dark:bg-[var(--edu-bg)] border border-[#e2e8f0] dark:border-[var(--edu-border)] rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all flex items-center gap-5 group">
+                        <div className="w-16 h-16 flex-shrink-0 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center p-3 group-hover:scale-110 transition-transform">
+                            <img src={iconoExamen} alt="Crea Quiz" className="w-full h-full object-contain" />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="text-lg font-black text-[#4f46e5] dark:text-indigo-400 mb-1 leading-tight">Crea Quiz</h3>
+                            <p className="text-sm text-[#64748b] dark:text-[var(--edu-text-muted)] leading-tight">Desafío gamificado.</p>
                         </div>
                     </div>
                 </div>
@@ -190,7 +214,7 @@ const LandingView = () => {
                             </div>
                             <h3 className="text-xl font-bold mb-2">1. Elige el juego</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
-                                (Selecciona entre crucigramas, pupiletras o sudoku).
+                                (Selecciona crucigramas, pupiletras, sudoku, crucimate o quiz interactivo).
                             </p>
                         </div>
 
@@ -204,7 +228,7 @@ const LandingView = () => {
                             </div>
                             <h3 className="text-xl font-bold mb-2">2. Personalízalo</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
-                                (Escribe tus propias palabras, temas o nombres de tu hijo para hacerlo especial).
+                                (Escribe tus temas, preguntas, operaciones o palabras para hacerlo especial).
                             </p>
                         </div>
 
@@ -218,7 +242,7 @@ const LandingView = () => {
                             </div>
                             <h3 className="text-xl font-bold mb-2">3. ¡Aprende jugando!</h3>
                             <p className="text-[#64748b] dark:text-[var(--edu-text-muted)] text-sm px-4">
-                                (Descarga el PDF al instante y dale vida al aprendizaje en casa).
+                                (Descarga el PDF al instante o juega interactivamente en la plataforma).
                             </p>
                         </div>
                     </div>
