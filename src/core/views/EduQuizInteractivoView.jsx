@@ -114,8 +114,8 @@ const EduQuizInteractivoView = () => {
     
     // Slots de Almacenamiento (Bancos)
     const [slots, setSlots] = useState({
-        1: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, dificultad: 'MEDIO' },
-        2: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, dificultad: 'MEDIO' }
+        1: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' },
+        2: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' }
     });
 
     const [promptCopied, setPromptCopied] = useState(false);
@@ -125,6 +125,7 @@ const EduQuizInteractivoView = () => {
 
     // Configuración adicional del padre
     const [timerEnabled, setTimerEnabled] = useState(true);
+    const [timerValue, setTimerValue] = useState(20);
 
     // Estados de Gamificación
     const [streak, setStreak] = useState(0);
@@ -236,7 +237,7 @@ const EduQuizInteractivoView = () => {
                 }
 
                 // Configuración por defecto para inicializar bancos
-                const defaultBank = { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, dificultad: 'MEDIO' };
+                const defaultBank = { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' };
                 const limitDate = new Date();
                 limitDate.setDate(limitDate.getDate() - 14);
                 let hasChanges = false;
@@ -284,6 +285,7 @@ const EduQuizInteractivoView = () => {
                 setInputData(active.content || '');
                 setSelectedCount(active.selectedCount || 10);
                 setTimerEnabled(active.timerEnabled !== undefined ? active.timerEnabled : true);
+                setTimerValue(active.timerValue || 20);
                 setQuestions(parseQuestions(active.content || ''));
             } catch (err) {
                 console.error("Error al cargar slots del Quiz:", err);
@@ -302,7 +304,7 @@ const EduQuizInteractivoView = () => {
         }
     }, [inputData]);
 
-    // Sincronizar el slot activo al escribir edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled o dificultad
+    // Sincronizar el slot activo al escribir edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, timerValue o dificultad
     useEffect(() => {
         setSlots(prev => ({
             ...prev,
@@ -315,14 +317,15 @@ const EduQuizInteractivoView = () => {
                 selectedCount: selectedCount,
                 updatedAt: slots[activeSlot]?.updatedAt || null,
                 timerEnabled: timerEnabled,
+                timerValue: timerValue,
                 dificultad: dificultad
             }
         }));
-    }, [edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, dificultad, activeSlot]);
+    }, [edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, timerValue, dificultad, activeSlot]);
 
     const handleSelectSlot = (slotNum) => {
         setActiveSlot(slotNum);
-        const targetSlot = slots[slotNum] || { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, dificultad: 'MEDIO' };
+        const targetSlot = slots[slotNum] || { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' };
         setEdad(targetSlot.age || '9 AÑOS');
         setGrado(targetSlot.grade || '4TO GRADO');
         setArea(targetSlot.area || 'MATEMÁTICAS');
@@ -331,6 +334,7 @@ const EduQuizInteractivoView = () => {
         setInputData(targetSlot.content || '');
         setSelectedCount(targetSlot.selectedCount || 10);
         setTimerEnabled(targetSlot.timerEnabled !== undefined ? targetSlot.timerEnabled : true);
+        setTimerValue(targetSlot.timerValue || 20);
         setQuestions(parseQuestions(targetSlot.content || ''));
     };
 
@@ -362,13 +366,13 @@ const EduQuizInteractivoView = () => {
     // Reiniciar estados temporales en cada cambio de pregunta
     useEffect(() => {
         if (gameState === 'playing') {
-            setQuestionTimeLeft(20);
+            setQuestionTimeLeft(timerValue);
             setDisabledOptions([]);
             setUsedDoubleChance(false);
             setShaked(false);
             setStarsEffect([]);
         }
-    }, [currentQuestionIdx, gameState]);
+    }, [currentQuestionIdx, gameState, timerValue]);
 
     // Usar el comodín 50/50
     const usarCincuentaCincuenta = () => {
@@ -524,7 +528,8 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                     content: inputData,
                     selectedCount: selectedCount,
                     updatedAt: new Date().toISOString(),
-                    timerEnabled: timerEnabled
+                    timerEnabled: timerEnabled,
+                    timerValue: timerValue
                 }
             };
             
@@ -587,7 +592,7 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
             setUsedDoubleChance(false);
             setShaked(false);
             setStarsEffect([]);
-            setQuestionTimeLeft(20);
+            setQuestionTimeLeft(timerValue);
             
             setGameState('playing');
             setLoading(false);
@@ -1170,7 +1175,7 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                         </div>
 
                                         <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400 pt-2 border-t border-slate-800/40">
-                                            <span>Tiempo Límite (20s):</span>
+                                            <span>Tiempo Límite:</span>
                                             <label className="relative inline-flex items-center cursor-pointer">
                                                 <input 
                                                     id="INPUT_QUIZ_TIMER_ENABLED"
@@ -1182,6 +1187,21 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                                 <div className="w-8 h-4 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
                                             </label>
                                         </div>
+
+                                        {timerEnabled && (
+                                            <div className="space-y-1 pt-1">
+                                                <label className="text-[9px] uppercase font-bold text-slate-400">Segundos por pregunta</label>
+                                                <input 
+                                                    id="INPUT_QUIZ_TIMER_VALUE"
+                                                    type="number"
+                                                    min="5"
+                                                    max="120"
+                                                    value={timerValue}
+                                                    onChange={(e) => setTimerValue(Math.max(5, Math.min(120, parseInt(e.target.value) || 20)))}
+                                                    className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50 font-bold"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -1258,7 +1278,7 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                         <div className="w-full h-1.5 bg-slate-900 overflow-hidden relative">
                             <div 
                                 className={`h-full transition-all duration-1000 ${questionTimeLeft > 5 ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
-                                style={{ width: `${(questionTimeLeft / 20) * 100}%` }}
+                                style={{ width: `${(questionTimeLeft / timerValue) * 100}%` }}
                             ></div>
                         </div>
                     )}
