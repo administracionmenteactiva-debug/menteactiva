@@ -562,6 +562,9 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
         
         setIsSaving(true);
         try {
+            const sanitizedTimerValue = Math.max(5, Math.min(300, parseInt(timerValue, 10) || 30));
+            setTimerValue(sanitizedTimerValue);
+            
             const targetSlots = {
                 ...slots,
                 [activeSlot]: {
@@ -573,7 +576,7 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                     selectedCount: selectedCount,
                     updatedAt: new Date().toISOString(),
                     timerEnabled: timerEnabled,
-                    timerValue: timerValue
+                    timerValue: sanitizedTimerValue
                 }
             };
             
@@ -636,7 +639,9 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
             setUsedDoubleChance(false);
             setShaked(false);
             setStarsEffect([]);
-            setQuestionTimeLeft(timerValue);
+            const finalTimerValue = Math.max(5, Math.min(300, parseInt(timerValue, 10) || 30));
+            setTimerValue(finalTimerValue);
+            setQuestionTimeLeft(finalTimerValue);
             
             setGameState('playing');
             setLoading(false);
@@ -1250,7 +1255,25 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                                     min="5"
                                                     max="300"
                                                     value={timerValue}
-                                                    onChange={(e) => setTimerValue(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === '') {
+                                                            setTimerValue('');
+                                                        } else {
+                                                            const parsed = parseInt(val, 10);
+                                                            setTimerValue(isNaN(parsed) ? '' : parsed);
+                                                        }
+                                                    }}
+                                                    onBlur={() => {
+                                                        const parsed = parseInt(timerValue, 10);
+                                                        if (isNaN(parsed) || parsed < 5) {
+                                                            setTimerValue(5);
+                                                        } else if (parsed > 300) {
+                                                            setTimerValue(300);
+                                                        } else {
+                                                            setTimerValue(parsed);
+                                                        }
+                                                    }}
                                                     className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50 font-bold"
                                                 />
                                             </div>
