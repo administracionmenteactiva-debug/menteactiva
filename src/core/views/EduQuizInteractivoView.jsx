@@ -114,8 +114,8 @@ const EduQuizInteractivoView = () => {
     
     // Slots de Almacenamiento (Bancos)
     const [slots, setSlots] = useState({
-        1: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' },
-        2: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' }
+        1: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' },
+        2: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' }
     });
 
     const [promptCopied, setPromptCopied] = useState(false);
@@ -125,7 +125,7 @@ const EduQuizInteractivoView = () => {
 
     // Configuración adicional del padre
     const [timerEnabled, setTimerEnabled] = useState(true);
-    const [timerValue, setTimerValue] = useState(20);
+    const [timerValue, setTimerValue] = useState(30);
 
     // Estados de Gamificación
     const [streak, setStreak] = useState(0);
@@ -285,7 +285,7 @@ const EduQuizInteractivoView = () => {
                 setInputData(active.content || '');
                 setSelectedCount(active.selectedCount || 10);
                 setTimerEnabled(active.timerEnabled !== undefined ? active.timerEnabled : true);
-                setTimerValue(active.timerValue || 20);
+                setTimerValue(active.timerValue || 30);
                 setQuestions(parseQuestions(active.content || ''));
             } catch (err) {
                 console.error("Error al cargar slots del Quiz:", err);
@@ -325,7 +325,7 @@ const EduQuizInteractivoView = () => {
 
     const handleSelectSlot = (slotNum) => {
         setActiveSlot(slotNum);
-        const targetSlot = slots[slotNum] || { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' };
+        const targetSlot = slots[slotNum] || { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' };
         setEdad(targetSlot.age || '9 AÑOS');
         setGrado(targetSlot.grade || '4TO GRADO');
         setArea(targetSlot.area || 'MATEMÁTICAS');
@@ -334,7 +334,7 @@ const EduQuizInteractivoView = () => {
         setInputData(targetSlot.content || '');
         setSelectedCount(targetSlot.selectedCount || 10);
         setTimerEnabled(targetSlot.timerEnabled !== undefined ? targetSlot.timerEnabled : true);
-        setTimerValue(targetSlot.timerValue || 20);
+        setTimerValue(targetSlot.timerValue || 30);
         setQuestions(parseQuestions(targetSlot.content || ''));
     };
 
@@ -1195,9 +1195,9 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                                     id="INPUT_QUIZ_TIMER_VALUE"
                                                     type="number"
                                                     min="5"
-                                                    max="120"
+                                                    max="300"
                                                     value={timerValue}
-                                                    onChange={(e) => setTimerValue(Math.max(5, Math.min(120, parseInt(e.target.value) || 20)))}
+                                                    onChange={(e) => setTimerValue(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
                                                     className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50 font-bold"
                                                 />
                                             </div>
