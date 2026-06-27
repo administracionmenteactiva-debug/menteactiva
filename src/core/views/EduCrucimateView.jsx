@@ -1084,7 +1084,7 @@ const EduCrucimateView = () => {
                                         onChange={(e) => setAllowedOps(prev => ({ ...prev, comp: e.target.checked }))}
                                         className="rounded border-slate-700 bg-[#0f172a] text-blue-500 focus:ring-blue-500"
                                     />
-                                    Comparaciones (&gt;, &lt;, =)
+                                    Comparaciones (&gt;, &lt;, =) (menos de 7 años)
                                 </label>
                             </div>
                             <p className="text-[9px] leading-relaxed text-slate-400 mt-3 italic px-1">
