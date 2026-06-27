@@ -64,12 +64,30 @@ const parseQuestions = (text) => {
         const answerMatch = blockText.match(/\[respuesta\]([\s\S]*?)\[finrespuesta\]/i);
         if (answerMatch) {
             answerText = answerMatch[1].trim();
+        } else {
+            // Extracción de respaldo en caso de que falte la etiqueta de cierre [finrespuesta]
+            const fallbackMatch = blockText.match(/\[respuesta\]\s*([A-Ea-e])/i);
+            if (fallbackMatch) {
+                answerText = fallbackMatch[1].trim();
+            }
         }
         
         // 3. Obtener el texto de la pregunta (removiendo bloques de opciones y respuestas)
         let cleanedQuestion = blockText;
         cleanedQuestion = cleanedQuestion.replace(/\[opciones\][\s\S]*?\[finopciones\]/gi, '');
         cleanedQuestion = cleanedQuestion.replace(/\[respuesta\][\s\S]*?\[finrespuesta\]/gi, '');
+        
+        // Escudo de Robustez contra respuestas inline u omisión de etiquetas de cierre:
+        // Cortamos el texto de la pregunta en la primera ocurrencia de la etiqueta [respuesta] o palabra respuesta:
+        if (cleanedQuestion.toLowerCase().includes('[respuesta]')) {
+            cleanedQuestion = cleanedQuestion.split(/\[respuesta\]/i)[0];
+        }
+        if (cleanedQuestion.toLowerCase().includes('respuesta:')) {
+            cleanedQuestion = cleanedQuestion.split(/respuesta:/i)[0];
+        }
+        
+        // Remover cualquier etiqueta huérfana sobrante que pueda haber quedado
+        cleanedQuestion = cleanedQuestion.replace(/\[\/?(pregunta|opciones|respuesta|finpregunta|finopciones|finrespuesta)\]/gi, '');
         questionText = cleanedQuestion.trim();
         
         if (questionText) {
@@ -489,7 +507,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS Y FORMATO:
 1. CADA pregunta DEBE estar contenida exactamente entre [pregunta] y [finpregunta].
 2. Las opciones DEBEN estar contenidas exactamente entre [opciones] y [finopciones] y ser exactamente 5 (A, B, C, D, E).
 3. La respuesta de la pregunta DEBE estar contenida exactamente entre [respuesta] y [finrespuesta] y debe ser solo la letra correspondiente (A, B, C, D o E).
-4. ESTÁ PROHIBIDO omitir cualquiera de estas etiquetas de apertura y cierre. Cierra cada etiqueta de forma exacta.
+4. ESTÁ PROHIBIDO omitir cualquiera de estas etiquetas de apertura y cierre. Cierra cada etiqueta de forma exacta. NUNCA escribas la etiqueta [respuesta] o la letra de la respuesta correcta dentro del enunciado de la pregunta. La respuesta debe ir siempre al final de toda la estructura de la pregunta, después de [finopciones].
 5. No agregues números de lista antes de las etiquetas.
 6. Mantén el texto limpio y fácil de leer.
 7. Las preguntas deben estar perfectamente adecuadas al nivel cognitivo de un niño de ${edadVal} (${gradoVal}) en el área de ${areaVal}.
@@ -540,7 +558,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS Y FORMATO:
 1. CADA pregunta DEBE estar contenida exactamente entre [pregunta] y [finpregunta].
 2. Las opciones DEBEN estar contenidas exactamente entre [opciones] y [finopciones] y ser exactamente 5 (A, B, C, D, E).
 3. La respuesta de la pregunta DEBE estar contenida exactamente entre [respuesta] y [finrespuesta] y debe ser solo la letra correspondiente (A, B, C, D o E).
-4. ESTÁ PROHIBIDO omitir cualquiera de estas etiquetas de apertura y cierre. Cierra cada etiqueta de forma exacta.
+4. ESTÁ PROHIBIDO omitir cualquiera de estas etiquetas de apertura y cierre. Cierra cada etiqueta de forma exacta. NUNCA escribas la etiqueta [respuesta] o la letra de la respuesta correcta dentro del enunciado de la pregunta. La respuesta debe ir siempre al final de toda la estructura de la pregunta, después de [finopciones].
 5. No agregues números de lista antes de las etiquetas.
 6. Mantén el texto limpio y fácil de leer.
 7. Transcribe exactamente el contenido del material escolar, pero adáptalo a este formato.
