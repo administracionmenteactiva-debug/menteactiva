@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { useAuth } from '../context/AuthContext.jsx';
-import { ChevronLeft, Download, FileText, Sparkles, MessageSquare, Play, Settings, LogOut, Clock, Calculator, Image as ImageIcon } from 'lucide-react';
+import { ChevronLeft, Download, FileText, Sparkles, Play, Settings, LogOut, Clock, Calculator, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../services/databaseService';
 import MenteActivaLogo from '../components/common/MenteActivaLogo.jsx';
@@ -942,26 +942,10 @@ const EduCrucimateView = () => {
                                     <Settings size={14} /> Panel
                                 </button>
                             </div>
-                            <div className="grid grid-cols-3 gap-2">
-                                <a 
-                                    href="https://gemini.google.com/" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg"
-                                >
-                                    <Sparkles size={12} /> Gemini
-                                </a>
-                                <a 
-                                    href="https://chatgpt.com/" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg"
-                                >
-                                    <MessageSquare size={12} /> ChatGPT
-                                </a>
+                            <div className="flex">
                                 <button 
                                     onClick={() => navigate('/tutorial')}
-                                    className="flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-red-600 to-rose-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-red-500/20"
+                                    className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-red-600 to-rose-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-red-500/20"
                                 >
                                     <Play size={12} fill="white" /> Tutorial
                                 </button>
