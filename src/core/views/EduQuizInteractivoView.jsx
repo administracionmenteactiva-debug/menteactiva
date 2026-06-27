@@ -101,9 +101,9 @@ const EduQuizInteractivoView = () => {
     const [showWelcomeMessage, setShowWelcomeMessage] = useState(user?.plan === 'prueba' && !sessionStorage.getItem('edu_trial_welcomed'));
 
     // Estados de la herramienta (Piezas Curriculares, Banco Base y Configuración)
-    const [edad, setEdad] = useState('9 AÑOS');
-    const [grado, setGrado] = useState('4TO GRADO');
-    const [area, setArea] = useState('MATEMÁTICAS');
+    const [edad, setEdad] = useState('');
+    const [grado, setGrado] = useState('');
+    const [area, setArea] = useState('');
     const [rawQuestions, setRawQuestions] = useState('');
     const [dificultad, setDificultad] = useState('MEDIO');
     const [activeSlot, setActiveSlot] = useState(1); // 1, 2, 3
@@ -114,8 +114,8 @@ const EduQuizInteractivoView = () => {
     
     // Slots de Almacenamiento (Bancos)
     const [slots, setSlots] = useState({
-        1: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' },
-        2: { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' }
+        1: { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' },
+        2: { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' }
     });
 
     const [promptCopied, setPromptCopied] = useState(false);
@@ -237,7 +237,7 @@ const EduQuizInteractivoView = () => {
                 }
 
                 // Configuración por defecto para inicializar bancos
-                const defaultBank = { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 20, dificultad: 'MEDIO' };
+                const defaultBank = { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' };
                 const limitDate = new Date();
                 limitDate.setDate(limitDate.getDate() - 14);
                 let hasChanges = false;
@@ -277,9 +277,9 @@ const EduQuizInteractivoView = () => {
 
                 setSlots(updatedSlots);
                 const active = updatedSlots[1] || { ...defaultBank };
-                setEdad(active.age || '9 AÑOS');
-                setGrado(active.grade || '4TO GRADO');
-                setArea(active.area || 'MATEMÁTICAS');
+                setEdad(active.age || '');
+                setGrado(active.grade || '');
+                setArea(active.area || '');
                 setRawQuestions(active.rawQuestions || '');
                 setDificultad(active.dificultad || 'MEDIO');
                 setInputData(active.content || '');
@@ -325,10 +325,10 @@ const EduQuizInteractivoView = () => {
 
     const handleSelectSlot = (slotNum) => {
         setActiveSlot(slotNum);
-        const targetSlot = slots[slotNum] || { age: '9 AÑOS', grade: '4TO GRADO', area: 'MATEMÁTICAS', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' };
-        setEdad(targetSlot.age || '9 AÑOS');
-        setGrado(targetSlot.grade || '4TO GRADO');
-        setArea(targetSlot.area || 'MATEMÁTICAS');
+        const targetSlot = slots[slotNum] || { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' };
+        setEdad(targetSlot.age || '');
+        setGrado(targetSlot.grade || '');
+        setArea(targetSlot.area || '');
         setRawQuestions(targetSlot.rawQuestions || '');
         setDificultad(targetSlot.dificultad || 'MEDIO');
         setInputData(targetSlot.content || '');
@@ -949,28 +949,28 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                         value={edad} 
                                         onChange={(e) => setEdad(e.target.value)} 
                                         className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
-                                        placeholder="Ej: 9 AÑOS" 
+                                        placeholder="Ej: 9 años" 
                                     />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[9px] uppercase font-bold text-slate-650 ml-1">Grado escolar</label>
-                                    <input 
-                                        id="INPUT_QUIZ_GRADE" 
-                                        value={grado} 
-                                        onChange={(e) => setGrado(e.target.value)} 
-                                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
-                                        placeholder="Ej: 4to Grado" 
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[9px] uppercase font-bold text-slate-650 ml-1">Área curricular</label>
-                                    <input 
-                                        id="INPUT_QUIZ_AREA" 
-                                        value={area} 
-                                        onChange={(e) => setArea(e.target.value)} 
-                                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
-                                        placeholder="Ej: Matemáticas" 
-                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                      <label className="text-[9px] uppercase font-bold text-slate-650 ml-1">Grado escolar</label>
+                                      <input 
+                                          id="INPUT_QUIZ_GRADE" 
+                                          value={grado} 
+                                          onChange={(e) => setGrado(e.target.value)} 
+                                          className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
+                                          placeholder="Ej: 4to grado" 
+                                      />
+                                  </div>
+                                  <div className="space-y-1">
+                                      <label className="text-[9px] uppercase font-bold text-slate-650 ml-1">Área curricular</label>
+                                      <input 
+                                          id="INPUT_QUIZ_AREA" 
+                                          value={area} 
+                                          onChange={(e) => setArea(e.target.value)} 
+                                          className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500/50" 
+                                          placeholder="Ej: Ciencias Sociales" 
+                                      />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[9px] uppercase font-bold text-slate-650 ml-1">Nivel de dificultad</label>
