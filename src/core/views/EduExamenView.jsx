@@ -298,8 +298,8 @@ const EduExamenView = () => {
         const tituloVal = titulo || "Examen de Práctica";
         const gradoVal = grado || "9 años";
         
-        const promptText = `Actúa como un extractor y digitalizador de material educativo escolar.
-Tu tarea es leer las imágenes o el texto de las hojas de trabajo físicas provistas y extraer TODAS las preguntas y respuestas.
+        const promptText = `Actúa como un creador de exámenes y diseñador de contenido pedagógico.
+Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un examen estructurado.
 
 Debes transcribir y adaptar cada pregunta del material según las siguientes reglas de formato:
 
@@ -337,9 +337,9 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS:
 
 NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
 - Este material debe alinear al cumplimiento de la Resolución Ministerial N.° 501-2025-MINEDU.
-- ESCUDO ANTI-ALUCINACIÓN: TRABAJA ÚNICAMENTE CON LA INFORMACIÓN SUMINISTRADA. PROHIBIDO INVENTAR O AÑADIR DATOS CURRICULARES QUE NO ESTÉN EN EL TEXTO BASE.
-- PUREZA DE FORMATO (STRICT TEXT-ONLY): RESPONDE ÚNICAMENTE CON EL TEXTO SOLICITADO Y LAS ETIQUETAS DE APERTURA Y CIERRE. PROHIBIDO INCLUIR INTRODUCCIONES, COMENTARIOS ADICIONALES, SALUDOS, DESPEDIDAS, EXPLICACIONES, IMÁGENES O RECURSOS MULTIMEDIA. EL FORMATO DEBE SER 100% LIMPIO DE TEXTO AUXILIAR.
-- PROHIBICIÓN DE GENERACIÓN DE APLICACIONES/INTERACTIVOS: ESTÁ ESTRICTAMENTE PROHIBIDO GENERAR CÓDIGO DE PROGRAMACIÓN, APLICACIONES INTERACTIVAS, COMPONENTES DINÁMICOS, ARTEFACTOS DE CÓDIGO (COMO REACT, HTML/JS, PYTHON) O INICIAR MÓDULOS DE EJECUCIÓN/COMPILACIÓN EN EL CHAT. TU RESPUESTA DEBE SER EXCLUSIVAMENTE TEXTO PLANO ESTATUADO SEGÚN EL FORMATO SOLICITADO. NO CREES NINGÚN SISTEMA INTERACTIVO O APLICACIÓN DE PREGUNTAS.`;
+- ESCUDO ANTI-ALUCINACIÓN: Trabaja únicamente sobre las preguntas y el tema provisto en el texto base. No inventes nuevas preguntas ni agregues temas que no estén en el texto base. Sin embargo, para las opciones de respuesta incorrectas (distractores) de preguntas de opción múltiple, tienes plena libertad y la obligación de formular alternativas plausibles aunque no se mencionen explícitamente en el texto original, asegurándote de que sean factualmente incorrectas.
+- PUREZA DE FORMATO (STRICT TEXT-ONLY): RESPONDE ÚNICAMENTE CON EL TEXTO SOLICITADO Y LAS ETIQUETAS DE APERTURA Y CIERRE. TU RESPUESTA DEBE COMENZAR DIRECTAMENTE CON LA ETIQUETA [pregunta] Y TERMINAR CON [finpregunta]. ESTÁ ESTRICTAMENTE PROHIBIDO INCLUIR INTRODUCCIONES, COMENTARIOS ADICIONALES, SALUDOS, DESPEDIDAS O EXPLICACIONES PEDAGÓGICAS. EL FORMATO DEBE SER 100% LIMPIO DE TEXTO AUXILIAR.
+- PROHIBICIÓN DE GENERACIÓN DE APLICACIONES/INTERACTIVOS: ESTÁ ESTRICTAMENTE PROHIBIDO GENERAR CÓDIGO DE PROGRAMACIÓN (COMO REACT, HTML/JS, PYTHON), APLICACIONES INTERACTIVAS, COMPONENTES DINÁMICOS O INICIAR MÓDULOS DE EJECUCIÓN. TU RESPUESTA DEBE SER EXCLUSIVAMENTE TEXTO PLANO QUE CONTIENE LAS PREGUNTAS Y ALTERNATIVAS ETIQUETADAS SEGÚN EL FORMATO SOLICITADO. NO CREES NINGÚN SISTEMA DE JUEGO O EXAMEN INTERACTIVO EN EL CHAT.`;
 
         navigator.clipboard.writeText(promptText).then(() => {
             setPromptCopied(true);

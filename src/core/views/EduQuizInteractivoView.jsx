@@ -446,8 +446,8 @@ const EduQuizInteractivoView = () => {
         const rawPreguntasVal = rawQuestions || "No se especificaron preguntas.";
         const dificultadVal = dificultad || "MEDIO";
         
-        const promptText = `Actúa como un extractor y digitalizador de material educativo escolar para el aprendizaje de niños.
-Tu tarea es leer y procesar una lista de preguntas de estudio y transformarlas a un formato digital estandarizado.
+        const promptText = `Actúa como un creador de cuestionarios lúdicos y diseñador de contenido pedagógico infantil.
+Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un cuestionario estructurado.
 
 A continuación se detallan los datos pedagógicos:
 - Edad del niño: ${edadVal}
@@ -485,7 +485,7 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS Y FORMATO:
 5. No agregues números de lista antes de las etiquetas.
 6. Mantén el texto limpio y fácil de leer.
 7. Transcribe exactamente el contenido del material escolar, pero adáptalo a este formato.
-8. REGLA DE RESPUESTA FIJA: Si la lista de preguntas base proporcionada por el usuario incluye la respuesta correcta para una pregunta, debes utilizar de manera obligatoria esa respuesta exacta como una de las 5 opciones de la A a la E, y definir su letra correspondiente en el bloque [respuesta]. Bajo ninguna circunstancia debes modificar, contradecir o ignorar la respuesta provista por el usuario.
+8. REGLA DE RESPUESTA FIJA: Si la lista de preguntas base proporcionada por el usuario incluye la respuesta correcta para una pregunta (por ejemplo, con prefijos 'R:', 'Respuesta:' o similar), debes utilizar de manera obligatoria esa respuesta exacta como una de las 5 opciones de la A a la E, y definir su letra correspondiente en el bloque [respuesta]. Bajo ninguna circunstancia debes modificar, contradecir o ignorar la respuesta provista por el usuario. Las otras 4 alternativas restantes deben ser distractores incorrectos pero plausibles redactados por ti.
 9. REGLA DE DIFICULTAD PARA DISTRACTORES: El nivel de dificultad seleccionado es "${dificultadVal}". Debes actuar bajo las siguientes normas para construir las 4 opciones incorrectas (distractores) de cada pregunta:
    - Si el nivel es FÁCIL: Las opciones incorrectas deben ser extremadamente obvias de descartar, de alto contraste conceptual y sin trampas ni confusiones.
    - Si el nivel es MEDIO: Las opciones incorrectas deben ser distractores plausibles acordes a la edad del niño, con errores conceptuales típicos pero claros.
@@ -494,9 +494,9 @@ REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS Y FORMATO:
 
 NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
 - Este material debe alinear al cumplimiento de la Resolución Ministerial N.° 501-2025-MINEDU.
-- ESCUDO ANTI-ALUCINACIÓN: TRABAJA ÚNICAMENTE CON LA INFORMACIÓN SUMINISTRADA. PROHIBIDO INVENTAR O AÑADIR DATOS CURRICULARES QUE NO ESTÉN EN EL TEXTO BASE.
-- PUREZA DE FORMATO (STRICT TEXT-ONLY): RESPONDE ÚNICAMENTE CON EL TEXTO SOLICITADO Y LAS ETIQUETAS DE APERTURA Y CIERRE. PROHIBIDO INCLUIR INTRODUCCIONES, COMENTARIOS ADICIONALES, SALUDOS, DESPEDIDAS, EXPLICACIONES, IMÁGENES O RECURSOS MULTIMEDIA. EL FORMATO DEBE SER 100% LIMPIO DE TEXTO AUXILIAR.
-- PROHIBICIÓN DE GENERACIÓN DE APLICACIONES/INTERACTIVOS: ESTÁ ESTRICTAMENTE PROHIBIDO GENERAR CÓDIGO DE PROGRAMACIÓN, APLICACIONES INTERACTIVAS, COMPONENTES DINÁMICOS, ARTEFACTOS DE CÓDIGO (COMO REACT, HTML/JS, PYTHON) O INICIAR MÓDULOS DE EJECUCIÓN/COMPILACIÓN EN EL CHAT. TU RESPUESTA DEBE SER EXCLUSIVAMENTE TEXTO PLANO ESTATUADO SEGÚN EL FORMATO SOLICITADO. NO CREES NINGÚN SISTEMA INTERACTIVO O APLICACIÓN DE PREGUNTAS.`;
+- ESCUDO ANTI-ALUCINACIÓN: Trabaja únicamente sobre las preguntas y el tema provisto en el texto base. No inventes nuevas preguntas ni agregues temas que no estén en el texto base. Sin embargo, para las opciones de respuesta incorrectas (distractores), tienes plena libertad y la obligación de formular alternativas plausibles aunque no se mencionen explícitamente en el texto original, asegurándote de que sean factualmente incorrectas.
+- PUREZA DE FORMATO (STRICT TEXT-ONLY): RESPONDE ÚNICAMENTE CON EL TEXTO SOLICITADO Y LAS ETIQUETAS DE APERTURA Y CIERRE. TU RESPUESTA DEBE COMENZAR DIRECTAMENTE CON LA ETIQUETA [pregunta] Y TERMINAR CON [finpregunta]. ESTÁ ESTRICTAMENTE PROHIBIDO INCLUIR INTRODUCCIONES, COMENTARIOS ADICIONALES, SALUDOS, DESPEDIDAS O EXPLICACIONES PEDAGÓGICAS. EL FORMATO DEBE SER 100% LIMPIO DE TEXTO AUXILIAR.
+- PROHIBICIÓN DE GENERACIÓN DE APLICACIONES/INTERACTIVOS: ESTÁ ESTRICTAMENTE PROHIBIDO GENERAR CÓDIGO DE PROGRAMACIÓN (COMO REACT, HTML/JS, PYTHON), APLICACIONES INTERACTIVAS, COMPONENTES DINÁMICOS O INICIAR MÓDULOS DE EJECUCIÓN. TU RESPUESTA DEBE SER EXCLUSIVAMENTE TEXTO PLANO QUE CONTIENE LAS PREGUNTAS Y ALTERNATIVAS ETIQUETADAS SEGÚN EL FORMATO SOLICITADO. NO CREES NINGÚN SISTEMA DE JUEGO INTERACTIVO EN EL CHAT.`;
 
         navigator.clipboard.writeText(promptText).then(() => {
             setPromptCopied(true);
