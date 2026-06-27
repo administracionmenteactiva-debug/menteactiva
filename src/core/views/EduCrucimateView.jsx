@@ -448,7 +448,7 @@ const EduCrucimateView = () => {
     useEffect(() => {
         const numericAge = parseInt(grado.replace(/\D/g, '')) || 8;
         if (numericAge <= 6) {
-            setAllowedOps({ add: true, sub: true, mul: false, div: false, comp: true });
+            setAllowedOps({ add: false, sub: false, mul: false, div: false, comp: true });
             if (tipoNumero !== 'naturales') setTipoNumero('naturales');
         } else if (numericAge <= 8) {
             setAllowedOps({ add: true, sub: true, mul: true, div: false, comp: false });
@@ -1033,23 +1033,25 @@ const EduCrucimateView = () => {
                         <div className="space-y-2.5">
                             <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">4. Operaciones Habilitadas</label>
                             <div className="grid grid-cols-1 gap-2 pl-1">
-                                <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                                <label className={`flex items-center gap-2 text-xs font-semibold text-slate-300 ${allowedOps.comp ? 'opacity-50 select-none' : ''}`}>
                                     <input 
                                         id="CHK_CRUCIMATE_OP_ADD"
                                         type="checkbox" 
                                         checked={allowedOps.add}
+                                        disabled={allowedOps.comp}
                                         onChange={(e) => setAllowedOps(prev => ({ ...prev, add: e.target.checked }))}
-                                        className="rounded border-slate-700 bg-[#0f172a] text-blue-500 focus:ring-blue-500"
+                                        className="rounded border-slate-700 bg-[#0f172a] text-blue-500 focus:ring-blue-500 disabled:opacity-50"
                                     />
                                     Suma (+)
                                 </label>
-                                <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                                <label className={`flex items-center gap-2 text-xs font-semibold text-slate-300 ${allowedOps.comp ? 'opacity-50 select-none' : ''}`}>
                                     <input 
                                         id="CHK_CRUCIMATE_OP_SUB"
                                         type="checkbox" 
                                         checked={allowedOps.sub}
+                                        disabled={allowedOps.comp}
                                         onChange={(e) => setAllowedOps(prev => ({ ...prev, sub: e.target.checked }))}
-                                        className="rounded border-slate-700 bg-[#0f172a] text-blue-500 focus:ring-blue-500"
+                                        className="rounded border-slate-700 bg-[#0f172a] text-blue-500 focus:ring-blue-500 disabled:opacity-50"
                                     />
                                     Resta (-)
                                 </label>
@@ -1081,7 +1083,14 @@ const EduCrucimateView = () => {
                                         type="checkbox" 
                                         checked={allowedOps.comp}
                                         disabled={parseInt(grado.replace(/\D/g, '')) > 6}
-                                        onChange={(e) => setAllowedOps(prev => ({ ...prev, comp: e.target.checked }))}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            setAllowedOps(prev => ({
+                                                ...prev,
+                                                comp: isChecked,
+                                                ...(isChecked ? { add: false, sub: false } : { add: true, sub: true })
+                                            }));
+                                        }}
                                         className="rounded border-slate-700 bg-[#0f172a] text-blue-500 focus:ring-blue-500"
                                     />
                                     Comparaciones (&gt;, &lt;, =) (menos de 7 años)
