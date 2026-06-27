@@ -111,11 +111,13 @@ const EduQuizInteractivoView = () => {
     const [questions, setQuestions] = useState([]);
     const [selectedCount, setSelectedCount] = useState(10);
     const [activeQuestions, setActiveQuestions] = useState([]);
+    const [noBalotario, setNoBalotario] = useState(false);
+    const [numPreguntasGenerar, setNumPreguntasGenerar] = useState(10);
     
     // Slots de Almacenamiento (Bancos)
     const [slots, setSlots] = useState({
-        1: { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' },
-        2: { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' }
+        1: { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO', noBalotario: false, numPreguntasGenerar: 10 },
+        2: { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO', noBalotario: false, numPreguntasGenerar: 10 }
     });
 
     const [promptCopied, setPromptCopied] = useState(false);
@@ -237,7 +239,7 @@ const EduQuizInteractivoView = () => {
                 }
 
                 // Configuración por defecto para inicializar bancos
-                const defaultBank = { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' };
+                const defaultBank = { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO', noBalotario: false, numPreguntasGenerar: 10 };
                 const limitDate = new Date();
                 limitDate.setDate(limitDate.getDate() - 14);
                 let hasChanges = false;
@@ -282,6 +284,8 @@ const EduQuizInteractivoView = () => {
                 setArea(active.area || '');
                 setRawQuestions(active.rawQuestions || '');
                 setDificultad(active.dificultad || 'MEDIO');
+                setNoBalotario(active.noBalotario || false);
+                setNumPreguntasGenerar(active.numPreguntasGenerar || 10);
                 setInputData(active.content || '');
                 setSelectedCount(active.selectedCount || 10);
                 setTimerEnabled(active.timerEnabled !== undefined ? active.timerEnabled : true);
@@ -304,7 +308,7 @@ const EduQuizInteractivoView = () => {
         }
     }, [inputData]);
 
-    // Sincronizar el slot activo al escribir edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, timerValue o dificultad
+    // Sincronizar el slot activo al escribir edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, timerValue, dificultad, noBalotario o numPreguntasGenerar
     useEffect(() => {
         setSlots(prev => ({
             ...prev,
@@ -318,19 +322,23 @@ const EduQuizInteractivoView = () => {
                 updatedAt: slots[activeSlot]?.updatedAt || null,
                 timerEnabled: timerEnabled,
                 timerValue: timerValue,
-                dificultad: dificultad
+                dificultad: dificultad,
+                noBalotario: noBalotario,
+                numPreguntasGenerar: numPreguntasGenerar
             }
         }));
-    }, [edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, timerValue, dificultad, activeSlot]);
+    }, [edad, grado, area, rawQuestions, inputData, selectedCount, timerEnabled, timerValue, dificultad, noBalotario, numPreguntasGenerar, activeSlot]);
 
     const handleSelectSlot = (slotNum) => {
         setActiveSlot(slotNum);
-        const targetSlot = slots[slotNum] || { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO' };
+        const targetSlot = slots[slotNum] || { age: '', grade: '', area: '', rawQuestions: '', content: '', selectedCount: 10, updatedAt: null, timerEnabled: true, timerValue: 30, dificultad: 'MEDIO', noBalotario: false, numPreguntasGenerar: 10 };
         setEdad(targetSlot.age || '');
         setGrado(targetSlot.grade || '');
         setArea(targetSlot.area || '');
         setRawQuestions(targetSlot.rawQuestions || '');
         setDificultad(targetSlot.dificultad || 'MEDIO');
+        setNoBalotario(targetSlot.noBalotario || false);
+        setNumPreguntasGenerar(targetSlot.numPreguntasGenerar || 10);
         setInputData(targetSlot.content || '');
         setSelectedCount(targetSlot.selectedCount || 10);
         setTimerEnabled(targetSlot.timerEnabled !== undefined ? targetSlot.timerEnabled : true);
@@ -443,10 +451,58 @@ const EduQuizInteractivoView = () => {
         const edadVal = edad || "9 años";
         const gradoVal = grado || "4to grado";
         const areaVal = area || "Matemáticas";
-        const rawPreguntasVal = rawQuestions || "No se especificaron preguntas.";
+        const rawPreguntasVal = rawQuestions || "No se especificó un tema.";
         const dificultadVal = dificultad || "MEDIO";
         
-        const promptText = `Actúa como un creador de cuestionarios y diseñador de contenido pedagógico infantil.
+        const promptText = noBalotario
+        ? `Actúa como un creador de cuestionarios y diseñador de contenido pedagógico infantil.
+Tu tarea es generar un cuestionario estructurado de preguntas de opción múltiple desde cero basándote en el tema académico proporcionado.
+
+obligatorio: Bajo ninguna circunstancia generes un quiz interactivo. Responde con los parámetros del prompt, lee todo hasta el final.
+
+A continuación se detallan los datos pedagógicos:
+- Edad del niño: ${edadVal}
+- Grado escolar: ${gradoVal}
+- Área de estudio: ${areaVal}
+- Nivel de dificultad para las opciones y distractores: ${dificultadVal}
+- Tema de estudio sobre el cual crear las preguntas: ${rawPreguntasVal}
+- Cantidad exacta de preguntas que debes generar: Genera exactamente ${numPreguntasGenerar} preguntas. No más, no menos.
+
+Debes redactar y estructurar cada pregunta del material según las siguientes reglas de formato:
+
+Estructura para preguntas de opción múltiple (SIEMPRE debes generar EXACTAMENTE 5 opciones de respuesta para cada una, etiquetadas de la A a la E):
+[pregunta]
+¿Cuál es la pregunta o reto?
+[opciones]
+A) Primera opción
+B) Segunda opción
+C) Tercera opción
+D) Cuarta opción
+E) Quinta opción
+[finopciones]
+[respuesta]
+Letra de la respuesta correcta (ej. C)
+[finrespuesta]
+[finpregunta]
+
+REGLAS DE OBLIGATORIEDAD CRÍTICA DE ETIQUETAS Y FORMATO:
+1. CADA pregunta DEBE estar contenida exactamente entre [pregunta] y [finpregunta].
+2. Las opciones DEBEN estar contenidas exactamente entre [opciones] y [finopciones] y ser exactamente 5 (A, B, C, D, E).
+3. La respuesta de la pregunta DEBE estar contenida exactamente entre [respuesta] y [finrespuesta] y debe ser solo la letra correspondiente (A, B, C, D o E).
+4. ESTÁ PROHIBIDO omitir cualquiera de estas etiquetas de apertura y cierre. Cierra cada etiqueta de forma exacta.
+5. No agregues números de lista antes de las etiquetas.
+6. Mantén el texto limpio y fácil de leer.
+7. Las preguntas deben estar perfectamente adecuadas al nivel cognitivo de un niño de ${edadVal} (${gradoVal}) en el área de ${areaVal}.
+8. REGLA DE DIFICULTAD PARA DISTRACTORES: El nivel de dificultad seleccionado es "${dificultadVal}". Debes actuar bajo las siguientes normas para construir las 4 opciones incorrectas (distractores) de cada pregunta:
+   - Si el nivel es FÁCIL: Las opciones incorrectas deben ser extremadamente obvias de descartar, de alto contraste conceptual y sin trampas ni confusiones.
+   - Si el nivel es MEDIO: Las opciones incorrectas deben ser distractores plausibles acordes a la edad del niño, con errores conceptuales típicos pero claros.
+   - Si el nivel es DIFÍCIL: Las opciones incorrectas deben ser de alta complejidad, muy parecidas en redacción o concepto a la respuesta correcta para exigir un análisis discriminatorio fino.
+
+NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
+- Este material debe alinear al cumplimiento de la Resolución Ministerial N.° 501-2025-MINEDU.
+- PUREZA DE FORMATO (STRICT TEXT-ONLY): RESPONDE ÚNICAMENTE CON EL TEXTO SOLICITADO Y LAS ETIQUETAS DE APERTURA Y CIERRE. TU RESPUESTA DEBE COMENZAR DIRECTAMENTE CON LA ETIQUETA [pregunta] Y TERMINAR CON [finpregunta]. ESTÁ ESTRICTAMENTE PROHIBIDO INCLUIR INTRODUCCIONES, COMENTARIOS ADICIONALES, SALUDOS, DESPEDIDAS O EXPLICACIONES PEDAGÓGICAS. EL FORMATO DEBE SER 100% LIMPIO DE TEXTO AUXILIAR.
+- PROHIBICIÓN DE GENERACIÓN DE APLICACIONES/INTERACTIVOS: ESTÁ ESTRICTAMENTE PROHIBIDO GENERAR CÓDIGO DE PROGRAMACIÓN (COMO REACT, HTML/JS, PYTHON), APLICACIONES INTERACTIVAS, COMPONENTES DINÁMICOS O INICIAR MÓDULOS DE EJECUCIÓN. TU RESPUESTA DEBE SER EXCLUSIVAMENTE TEXTO PLANO QUE CONTIENE LAS PREGUNTAS Y ALTERNATIVAS ETIQUETADAS SEGÚN EL FORMATO SOLICITADO. NO CREES NINGÚN SISTEMA DE JUEGO INTERACTIVO EN EL CHAT.`
+        : `Actúa como un creador de cuestionarios y diseñador de contenido pedagógico infantil.
 Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un cuestionario estructurado de preguntas de opción múltiple. Si la lista que te dan ya contiene la respuesta solamente debes agregar opciones incorrectas de acuerdo al nivel de dificultad indicado.
 
 obligatorio: Bajo ninguna circunstancia generes un quiz interactivo. Responde con los parámetros del prompt, lee todo hasta el final.
@@ -576,7 +632,10 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                     selectedCount: selectedCount,
                     updatedAt: new Date().toISOString(),
                     timerEnabled: timerEnabled,
-                    timerValue: sanitizedTimerValue
+                    timerValue: sanitizedTimerValue,
+                    dificultad: dificultad,
+                    noBalotario: noBalotario,
+                    numPreguntasGenerar: numPreguntasGenerar
                 }
             };
             
@@ -1041,6 +1100,21 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                         ))}
                                     </div>
                                 </div>
+                                <div className="pt-1 flex items-center gap-2 select-none">
+                                    <input 
+                                        type="checkbox"
+                                        id="INPUT_QUIZ_NO_BALOTARIO"
+                                        checked={noBalotario}
+                                        onChange={(e) => setNoBalotario(e.target.checked)}
+                                        className="w-4 h-4 rounded border-slate-700 bg-[#0f172a] text-blue-600 focus:ring-blue-500/50 cursor-pointer"
+                                    />
+                                    <label 
+                                        htmlFor="INPUT_QUIZ_NO_BALOTARIO" 
+                                        className="text-[9px] uppercase font-black text-slate-400 hover:text-slate-200 cursor-pointer transition-colors"
+                                    >
+                                        No tengo balotario de preguntas
+                                    </label>
+                                </div>
                             </div>
 
                             {/* 2. EL ENSAMBLADOR DE INSTRUCCIONES */}
@@ -1048,15 +1122,40 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                 <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">2. El Ensamblador de Instrucciones</label>
 
                                 <div className="space-y-1">
-                                    <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Preguntas base del padre</label>
+                                    <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">
+                                        {noBalotario ? 'Tema para generar preguntas' : 'Preguntas base del padre'}
+                                    </label>
                                     <textarea 
                                         id="INPUT_QUIZ_RAW_QUESTIONS"
                                         value={rawQuestions} 
                                         onChange={(e) => setRawQuestions(e.target.value)} 
                                         className="w-full h-24 bg-[#0f172a] border border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-blue-500/50 transition-all resize-none premium-scrollbar" 
-                                        placeholder="Redacte o pegue su lista de preguntas base aquí..." 
+                                        placeholder={noBalotario ? "Ej: El ciclo del agua, la fotosíntesis, el imperio Inca..." : "Redacte o pegue su lista de preguntas base aquí..."} 
                                     />
                                 </div>
+
+                                {noBalotario && (
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] uppercase font-bold text-slate-600 ml-1">Preguntas a generar (Máx. 40)</label>
+                                        <div className="flex items-center gap-2 bg-[#0f172a] border border-slate-700 rounded-xl p-1.5 w-full justify-between">
+                                            <button 
+                                                type="button"
+                                                onClick={() => setNumPreguntasGenerar(prev => Math.max(1, prev - 1))}
+                                                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center transition-all select-none active:scale-90"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="text-xs font-black text-white">{numPreguntasGenerar}</span>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setNumPreguntasGenerar(prev => Math.min(40, prev + 1))}
+                                                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center transition-all select-none active:scale-90"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <button 
                                     id="BTN_QUIZ_COPY_PROMPT"
