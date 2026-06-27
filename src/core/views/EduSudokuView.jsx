@@ -645,9 +645,9 @@ const EduSudokuView = () => {
     const currentUser = globalVars.META_USERS?.find(u => u.id === user.id) || user;
 
     return (
-        <div className="flex flex-col h-screen bg-[#0f172a] text-slate-200 overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-[#0f172a] text-slate-200 overflow-hidden font-sans print:h-auto print:bg-white print:overflow-visible">
             {showWelcomeMessage && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in print:hidden">
                     <div className="bg-[#1e293b] border border-emerald-500/50 p-8 rounded-3xl max-w-md w-full text-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
                         <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="text-emerald-400 text-3xl">📧</span>
@@ -671,7 +671,7 @@ const EduSudokuView = () => {
             )}
             {/* BARRA DE PRUEBA ACTIVA */}
             {user?.plan === 'prueba' && (
-                <div className="bg-purple-600 text-white px-6 py-2 flex items-center justify-between shadow-lg relative z-[100] animate-slide-down">
+                <div className="bg-purple-600 text-white px-6 py-2 flex items-center justify-between shadow-lg relative z-[100] animate-slide-down print:hidden">
                     <div className="flex items-center gap-4">
                         <div className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase">Sesión de Prueba</div>
                         <span className="text-xs font-bold opacity-90">Hola, {user.fullName}</span>
@@ -691,9 +691,9 @@ const EduSudokuView = () => {
                 </div>
             )}
             
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden print:overflow-visible">
             {/* PANEL DE CONTROL (IZQUIERDA) */}
-            <aside className="w-[350px] bg-[#1e293b] border-r border-slate-800 flex flex-col z-20 shadow-2xl overflow-hidden">
+            <aside className="w-[350px] bg-[#1e293b] border-r border-slate-800 flex flex-col z-20 shadow-2xl overflow-hidden print:hidden">
                 {/* CABECERA FIJA (Logo/Título siempre visibles) */}
                 <div className="flex-shrink-0">
                     <div className="h-[180px] px-6 border-b border-slate-800 flex justify-center items-center bg-[#1e293b]/50 backdrop-blur-md transition-all duration-500 relative">
@@ -807,7 +807,7 @@ const EduSudokuView = () => {
             </aside>
 
             {/* AREA DE PREVISUALIZACIÓN (CENTRO) */}
-            <main className="flex-1 bg-[#0f172a] p-12 overflow-y-auto premium-scrollbar flex flex-col items-center gap-6">
+            <main className="flex-1 bg-[#0f172a] p-12 overflow-y-auto premium-scrollbar flex flex-col items-center gap-6 print:p-0 print:m-0 print:bg-white print:overflow-visible">
                 {loading && (
                     <div className="fixed inset-0 bg-[#001f5b]/90 z-50 flex flex-col items-center justify-center gap-4 text-center">
                         <div className="w-12 h-12 border-[5px] border-white/30 border-t-[#00adc1] rounded-full animate-spin"></div>
@@ -816,7 +816,7 @@ const EduSudokuView = () => {
                     </div>
                 )}
 
-                <div className="flex gap-2 mb-2 bg-[#1e293b] p-1.5 rounded-2xl shadow-xl border border-slate-800 shrink-0">
+                <div className="flex gap-2 mb-2 bg-[#1e293b] p-1.5 rounded-2xl shadow-xl border border-slate-800 shrink-0 print:hidden">
                     <button 
                         onClick={() => setVistaActual('solucion')}
                         className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-300 ${vistaActual === 'solucion' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
