@@ -151,11 +151,11 @@ const generateSingleEquation = (age, numberType, allowedOps) => {
     }
 };
 
-// Buscar ecuación con restricción de valor en una posición
-const generateEquationWithConstraint = (age, numberType, allowedOps, targetValue, targetIndex) => {
+// Buscar ecuación con restricción de valor en una posición y con longitud exacta
+const generateEquationWithConstraint = (age, numberType, allowedOps, targetValue, targetIndex, targetLength) => {
     for (let attempts = 0; attempts < 1000; attempts++) {
         const eq = generateSingleEquation(age, numberType, allowedOps);
-        if (eq && eq.length > targetIndex && eq[targetIndex] === targetValue) {
+        if (eq && eq.length === targetLength && eq.length > targetIndex && eq[targetIndex] === targetValue) {
             return eq;
         }
     }
@@ -210,11 +210,14 @@ const runMathCrosswordMotor = (age, numberType, allowedOps, cantidadOperaciones 
                 const tryLengths = Math.random() > 0.4 ? [5, 3] : [3, 5];
 
                 for (let len of tryLengths) {
+                    // Si comparaciones no está activo, no permitimos longitud 3
+                    if (len === 3 && !allowedOps.comp) continue;
+
                     const indices = len === 5 ? [0, 2, 4] : [0, 2];
                     indices.sort(() => Math.random() - 0.5);
 
                     for (let idx of indices) {
-                        const newEq = generateEquationWithConstraint(age, numberType, allowedOps, cand.val, idx);
+                        const newEq = generateEquationWithConstraint(age, numberType, allowedOps, cand.val, idx, len);
                         if (!newEq) continue;
 
                         const newStartR = newIsHorizontal ? cand.r : cand.r - idx;
