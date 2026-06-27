@@ -509,6 +509,47 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
         });
     };
 
+    // Limpiar Banco seleccionado (rawQuestions, content, questions y persistir)
+    const limpiarBanco = async () => {
+        const confirmClear = window.confirm(`¿Seguro que deseas limpiar todas las preguntas del Banco ${activeSlot}? Se borrarán las preguntas base y el cuestionario estructurado.`);
+        if (!confirmClear) return;
+        
+        setRawQuestions('');
+        setInputData('');
+        setQuestions([]);
+        
+        const clearedSlot = {
+            ...slots[activeSlot],
+            rawQuestions: '',
+            content: '',
+            updatedAt: null
+        };
+        const updatedSlots = {
+            ...slots,
+            [activeSlot]: clearedSlot
+        };
+        setSlots(updatedSlots);
+        
+        try {
+            if (user.plan === 'prueba') {
+                localStorage.setItem(`menteactiva_quiz_interactivo_slots_${user.id}`, JSON.stringify(updatedSlots));
+            } else if (supabase) {
+                const { error } = await supabase
+                    .from('system_settings')
+                    .upsert({
+                        key: `quiz_interactivo_slots_${user.id}`,
+                        value: { slots: updatedSlots },
+                        updated_at: new Date().toISOString()
+                    });
+                if (error) throw error;
+            }
+            alert(`✅ Banco ${activeSlot} limpiado con éxito.`);
+        } catch (err) {
+            console.error("Error al limpiar el banco:", err);
+            alert("❌ Error al persistir la limpieza: " + err.message);
+        }
+    };
+
     // Guardado Silencioso de todas las piezas del slot
     const saveCurrentSlot = async () => {
         if (!user) return;
@@ -1152,6 +1193,15 @@ NORMAS DE SEGURIDAD PEDAGÓGICA Y FORMATO (RM 501):
                                             </button>
                                         ))}
                                     </div>
+                                    <button
+                                        id="BTN_QUIZ_CLEAR_BANK"
+                                        type="button"
+                                        onClick={limpiarBanco}
+                                        disabled={!rawQuestions && !inputData}
+                                        className="w-full mt-2 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 disabled:border-slate-850/40 text-rose-400 disabled:text-slate-600 disabled:opacity-40 disabled:bg-transparent rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                                    >
+                                        <Trash2 size={11} /> Limpiar Banco {activeSlot}
+                                    </button>
                                 </div>
 
                                 {/* CONFIGURACIÓN DEL RETO */}
