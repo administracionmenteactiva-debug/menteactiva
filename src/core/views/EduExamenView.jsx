@@ -299,7 +299,9 @@ const EduExamenView = () => {
         const gradoVal = grado || "9 años";
         
         const promptText = `Actúa como un creador de exámenes y diseñador de contenido pedagógico.
-Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un examen estructurado.
+Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un examen estructurado. Si la lista que te dan ya contiene la respuesta solamente debes agregar opciones incorrectas de acuerdo al nivel de dificultad indicado para las preguntas de opción múltiple.
+
+obligatorio: Bajo ninguna circunstancia generes un examen interactivo o interactivo dinámico. Responde con los parámetros del prompt, lee todo hasta el final.
 
 Debes transcribir y adaptar cada pregunta del material según las siguientes reglas de formato:
 

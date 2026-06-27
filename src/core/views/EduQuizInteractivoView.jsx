@@ -446,8 +446,10 @@ const EduQuizInteractivoView = () => {
         const rawPreguntasVal = rawQuestions || "No se especificaron preguntas.";
         const dificultadVal = dificultad || "MEDIO";
         
-        const promptText = `Actúa como un creador de cuestionarios lúdicos y diseñador de contenido pedagógico infantil.
-Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un cuestionario estructurado.
+        const promptText = `Actúa como un creador de cuestionarios y diseñador de contenido pedagógico infantil.
+Tu tarea es tomar una lista de preguntas de estudio y transformarlas en un cuestionario estructurado de preguntas de opción múltiple. Si la lista que te dan ya contiene la respuesta solamente debes agregar opciones incorrectas de acuerdo al nivel de dificultad indicado.
+
+obligatorio: Bajo ninguna circunstancia generes un quiz interactivo. Responde con los parámetros del prompt, lee todo hasta el final.
 
 A continuación se detallan los datos pedagógicos:
 - Edad del niño: ${edadVal}
